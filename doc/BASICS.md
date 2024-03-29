@@ -6,9 +6,9 @@ Essentia is an engine to facilitate alchemical transformations inspired by real-
 A core abstraction of the engine. Mixing substances together, they might transform into other substances with other potential side-effects.
 
 #### Composition
-Substances are comprised of two elements: `essense` and `form`. Possible values of those elements are defined as a part of the configuration to the simulation engine.
+Substances are comprised of two elements: `essence` and `form`. Possible values of those elements are defined as a part of the configuration to the simulation engine.
 
-`essense` describes the major element that makes up the substance. Examples might include `Silver` or `Water`.
+`essence` describes the major element that makes up the substance. Examples might include `Silver` or `Water`.
 
 `form` describes the state of the matter that makes up this substance.For example, `Crystalline` or `Fluid`.
 
@@ -43,8 +43,8 @@ Or, given an acid mixed with a base, over time a salt solution is formed:
     Substance(Vinegar, Acid),
     Substance(Lye, Base)
 } ===(Time=10)==> {
-    Substance(Water, Fluid) {
-        Solution(Potash, Salt)
+    Solution(Water, Fluid) {
+        Substance(Potash, Salt)
     }
 }
 ```

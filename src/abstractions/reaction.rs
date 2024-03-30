@@ -3,12 +3,13 @@ use crate::{
         physics::Power,
         Substance
     },
-    engine::Essentia
+    engine::Essentia, physics::Quantity
 };
 
 pub enum Product {
     Produce(Substance),
-    ThermalPower(Power),
+    Consume(u16, Quantity),
+    Thermal(Power),
 }
 
 pub trait Reaction {

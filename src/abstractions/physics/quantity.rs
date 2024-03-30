@@ -1,12 +1,24 @@
-use std::{iter::Sum, ops::{Add, Sub}};
+use std::{iter::Sum, ops::{Add, Sub, SubAssign}};
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
     pub mol: u16
 }
 
+impl SubAssign for Quantity {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.mol -= rhs.mol;
+    }
+}
+
 impl Quantity {
-    pub fn default() -> Self {
+    pub fn none() -> Self {
+        Quantity { mol: 0 }
+    }
+}
+
+impl Default for Quantity {
+    fn default() -> Self {
         Quantity { mol: 1 }
     }
 }

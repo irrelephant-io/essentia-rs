@@ -18,7 +18,7 @@ impl Reaction for PyroflaxHeat {
             .sum::<Quantity>();
 
         if total_pyro.mol > 0 {
-            vec![ Product::ThermalPower(self.power_per_mol * total_pyro)]
+            vec![ Product::Thermal(self.power_per_mol * total_pyro) ]
         } else {
             vec![]
         }

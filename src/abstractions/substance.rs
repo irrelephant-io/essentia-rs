@@ -1,6 +1,9 @@
+use std::sync::atomic::{Ordering, AtomicU16};
+
 use crate::{abstractions::physics::Quantity, engine::Essentia, Essence, Form};
 
 pub struct SubstanceData {
+    pub substance_id: u16,
     pub essence_id: u16,
     pub form_id: u16,
     pub quantity: Quantity
@@ -26,6 +29,8 @@ pub struct SubstanceBuilder<'a> {
     solution_quantity: Option<Quantity>
 }
 
+static SUBSTANCE_COUNTER: AtomicU16 = AtomicU16::new(0);
+
 impl SubstanceBuilder<'_> {
     pub fn new<'a>(engine: &'a Essentia) -> SubstanceBuilder<'a> {
         SubstanceBuilder {
@@ -49,6 +54,7 @@ impl SubstanceBuilder<'_> {
         if let (Some(essence), Some(form), Some(qty)) = (essence, form, qty) {
             Some(
                 SubstanceData {
+                    substance_id: SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst),
                     quantity: qty,
                     essence_id: essence.id,
                     form_id: form.id

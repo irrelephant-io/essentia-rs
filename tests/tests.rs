@@ -25,23 +25,22 @@ fn setup() -> Essentia {
     engine
 }
 
-#[test]
-fn simulate_empty_should_pass_time() {
-    let mut engine = setup();
-    
-    let prev_time = engine.environment.time;
-    engine.simulate(TimeSpan::from(10));
-
-    assert_eq!(engine.get_all().count(), 0);
-    assert!(engine.environment.time > prev_time);
-}
-
 fn add_pyroflux(engine: &mut Essentia) {
     engine.add_substance(
         SubstanceBuilder::new(&engine)
             .with_essence(Essences::Pyroflux.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::default())
+            .build()
+    );
+}
+
+fn add_cryodust(engine: &mut Essentia) {
+    engine.add_substance(
+        SubstanceBuilder::new(&engine)
+            .with_essence(Essences::Cryodust.into())
+            .with_form(Forms::Salt.into())
+            .with_quantity(Quantity::from(10))
             .build()
     );
 }
@@ -64,6 +63,17 @@ fn add_heatstone(engine: &mut Essentia) {
             .with_quantity(Quantity::from(10))
             .build()
     );
+}
+
+#[test]
+fn simulate_empty_should_pass_time() {
+    let mut engine = setup();
+    
+    let prev_time = engine.environment.time;
+    engine.simulate(TimeSpan::from(10));
+
+    assert_eq!(engine.get_all().count(), 0);
+    assert!(engine.environment.time > prev_time);
 }
 
 #[test]
@@ -124,4 +134,37 @@ fn inertia_doesnt_do_anything() {
         pyro_inertia_engine.environment
     );
     assert_eq!(just_pyro_engine.environment.temperature, pyro_inertia_engine.environment.temperature);
+}
+
+fn get_quantity_of(engine: &Essentia, essence: Essences) -> Quantity {
+    engine
+        .get_of_essense(essence.into())
+        .last()
+        .map(|x| x.quantity)
+        .unwrap_or(Quantity::none())
+}
+
+#[test]
+fn cryo_is_consumed_over_time() {
+    let mut engine = setup();
+    add_cryodust(&mut engine);
+
+    let temp_sample_pre = engine.environment.temperature;
+    let cryo_pre = get_quantity_of(&engine, Essences::Cryodust);
+    println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_pre, cryo_pre);
+    engine.simulate(TimeSpan::from(100)); 
+    let cryo_1 = get_quantity_of(&engine, Essences::Cryodust);
+    let temp_sample_1 = engine.environment.temperature;
+    println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_1, cryo_1);
+    // By this time we expect no change in the environment since all of the cryo was consumed by the reaction
+    engine.simulate(TimeSpan::from(100));
+    let cryo_2 = get_quantity_of(&engine, Essences::Cryodust);
+    let temp_sample_2 = engine.environment.temperature;
+    println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_2, cryo_2);
+
+    assert!(temp_sample_pre > temp_sample_1);
+    assert!(cryo_pre > cryo_1);
+    assert_eq!(temp_sample_2, temp_sample_1);
+    assert_eq!(cryo_2, cryo_1);
+    assert_eq!(engine.get_all().count(), 0);
 }

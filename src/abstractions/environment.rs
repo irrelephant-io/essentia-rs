@@ -1,5 +1,4 @@
-use super::Temperature;
-use super::Time;
+use crate::abstractions::physics::{Temperature, Time};
 
 pub struct Environment {
     pub temperature: Temperature,
@@ -9,7 +8,7 @@ pub struct Environment {
 impl Environment {
     pub fn new() -> Self {
         Environment {
-            temperature: Temperature::new(),
+            temperature: Temperature::default(),
             time: Time::new()
         }
     }

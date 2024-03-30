@@ -1,5 +1,4 @@
-use super::quantity::Quantity;
-
+use crate::abstractions::physics::Quantity;
 
 pub struct SubstanceData {
     pub essence_id: u16,

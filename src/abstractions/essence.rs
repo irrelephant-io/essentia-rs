@@ -1,17 +1,22 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
+use super::physics::SpecificHeatCapacity;
+
 static ESSENCE_COUNTER: AtomicU16 = AtomicU16::new(0);
 
 pub struct Essence {
     pub id: u16,
-    pub name: String
+    pub name: String,
+
+    pub heat_capacity: SpecificHeatCapacity
 }
 
 impl Essence {
     pub fn new(name: &str) -> Self {
         Essence {
             id: ESSENCE_COUNTER.fetch_add(1, Ordering::SeqCst),
-            name: String::from(name)
+            name: String::from(name),
+            heat_capacity: SpecificHeatCapacity::default()
         }
     }
 
@@ -24,7 +29,8 @@ impl Essence {
 
         Essence {
             id,
-            name: String::from(name)
+            name: String::from(name),
+            heat_capacity: SpecificHeatCapacity::default()
         }
     }
 }

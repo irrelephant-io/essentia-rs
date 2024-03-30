@@ -1,3 +1,2 @@
-mod engine;
-
-pub use engine::Essentia;
+mod essentia;
+pub use essentia::Essentia;

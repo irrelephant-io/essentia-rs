@@ -1,0 +1,32 @@
+use essentia_rs::{engine::Essentia, physics::{Power, Quantity}, reaction::{Product, Reaction}};
+
+use crate::data::essence::Essences;
+
+
+pub struct PyroflaxHeat {
+    power_per_mol: Power
+}
+
+impl Reaction for PyroflaxHeat {
+    fn react(
+        &self,
+        engine: &Essentia
+    ) -> Vec::<Product> {
+        let total_pyro = engine
+            .get_of_essense(Essences::Pyroflux.into())
+            .map(|pyro| pyro.quantity)
+            .sum::<Quantity>();
+
+        if total_pyro.mol > 0 {
+            vec![ Product::ThermalPower(self.power_per_mol * total_pyro)]
+        } else {
+            vec![]
+        }
+    }
+}
+
+impl PyroflaxHeat {
+    pub fn default() -> Self {
+        PyroflaxHeat { power_per_mol: Power::from(1) }
+    }
+}

@@ -1,5 +1,6 @@
 use crate::abstractions::physics::{Temperature, Time};
 
+#[derive(Debug)]
 pub struct Environment {
     pub temperature: Temperature,
     pub time: Time

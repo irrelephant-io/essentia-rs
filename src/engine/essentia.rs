@@ -1,25 +1,27 @@
 use std::collections::HashMap;
 
-use crate::abstractions::{reaction::Reaction, Environment, Essence, Form, Substance};
+use crate::{abstractions::{reaction::Reaction, Environment, Essence, Form, Substance}, physics::TimeSpan};
 
 pub struct Essentia {
     pub environment: Environment,
-    pub substances: Vec::<Substance>,
+    pub delta_time: TimeSpan,
 
+    substances: Vec::<Substance>,
     essence_lookup: HashMap::<u16, Essence>,
     form_lookup: HashMap::<u16, Form>,
-    reaction_lookup: HashMap<u16, Box<dyn Reaction>>
+    reactions: Vec<Box<dyn Reaction>>
 }
 
 impl Essentia {
     pub fn new(environment: Environment) -> Self {
         Essentia {
             environment,
+            delta_time: TimeSpan::from(0),
             substances: Vec::<Substance>::new(),
 
             essence_lookup: HashMap::new(),
             form_lookup: HashMap::new(),
-            reaction_lookup: HashMap::new()
+            reactions: vec![]
         }
     }
 }
@@ -30,3 +32,6 @@ mod registrations;
 
 // Contains engine simulation methods.
 mod simulation;
+
+// Contains code for querying system's contents
+mod querying;

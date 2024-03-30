@@ -1,6 +1,6 @@
 use substance::SubstanceData;
 
-use crate::abstractions::{substance, Substance};
+use crate::abstractions::substance;
 use crate::engine::Essentia;
 use crate::abstractions::physics::{Energy, Temperature};
 
@@ -12,19 +12,10 @@ fn get_substance_heat_capacity(substance: &SubstanceData, engine: &Essentia) -> 
 }
 
 pub fn get_delta_temp(engine: &Essentia, e: Energy) -> Temperature {
-    let total_cap = engine.substances
-        .iter()
+    let total_cap = engine
+        .get_all()
         .map(|substance| {
-            match substance {
-                Substance::Normal(substance) => {
-                    get_substance_heat_capacity(&substance, engine)
-                }
-                Substance::Solution(solvent, solution) => {
-                    get_substance_heat_capacity(&solvent, engine)
-                    +
-                    get_substance_heat_capacity(&solution, engine)
-                }
-            }
+            get_substance_heat_capacity(&substance, engine)
         })
         .sum::<HeatCapacity>();
 

@@ -1,18 +1,16 @@
-use crate::abstractions::Environment;
-use crate::abstractions::physics::{Energy, TimeSpan};
-use crate::abstractions::Substance;
+use crate::{
+    abstractions::{
+        physics::Power,
+        Substance
+    },
+    engine::Essentia
+};
 
 pub enum Product {
-    Substance(Substance),
-    Thermal(Energy),
+    Produce(Substance),
+    ThermalPower(Power),
 }
 
 pub trait Reaction {
-    fn get_id(&self) -> u16;
-    fn react(
-        &self,
-        environment: &Environment,
-        delta_time: &TimeSpan,
-        substance: &Substance
-    ) -> Vec::<Product>;
+    fn react(&self, engine: &Essentia) -> Vec::<Product>;
 }

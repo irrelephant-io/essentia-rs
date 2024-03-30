@@ -1,8 +1,5 @@
 use crate::abstractions::{
-    Essence,
-    Form,
-    Substance,
-    reaction::Reaction
+    reaction::Reaction, Essence, Form, Substance
 };
 
 impl super::Essentia {
@@ -14,11 +11,11 @@ impl super::Essentia {
         self.form_lookup.insert(form.id, form);
     }
 
-    pub fn register_reaction(&mut self, reaction: impl Reaction + 'static) {
-        self.reaction_lookup.insert(reaction.get_id(), Box::new(reaction));
+    pub fn register_reaction(&mut self, reaction: Box<dyn Reaction>) {
+        self.reactions.push(reaction);
     }
 
-    pub fn get_essence<'a>(&'a self, id: u16) -> Option<&'a Essence> {
+    pub fn get_essence(&self, id: u16) -> Option<&Essence> {
         self.essence_lookup.get(&id)
     }
 

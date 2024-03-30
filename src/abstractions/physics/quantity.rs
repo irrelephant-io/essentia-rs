@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::{iter::Sum, ops::{Add, Sub}};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
@@ -34,5 +34,11 @@ impl Sub for Quantity {
         Quantity {
             mol: self.mol - rhs.mol
         }
+    }
+}
+
+impl Sum for Quantity {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        Quantity { mol: iter.map(|q| q.mol).sum() }
     }
 }

@@ -9,9 +9,11 @@ impl Quantity {
     pub fn default() -> Self {
         Quantity { mol: 1 }
     }
+}
 
-    pub fn new(mol: u16) -> Self {
-        Quantity { mol }
+impl From<u16> for Quantity {
+    fn from(value: u16) -> Self {
+        Quantity { mol: value }
     }
 }
 

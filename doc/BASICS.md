@@ -13,7 +13,8 @@ Substances are comprised of two elements: `essence` and `form`. Possible values 
 `form` describes the state of the matter that makes up this substance.For example, `Crystalline` or `Fluid`.
 
 ### Solutions 
-Certain forms are prone to be dissolved in other forms of matter. These rules are defined as configuraton to the simulation.
+Certain forms are prone to be dissolved in other forms of matter. These rules are defined as reactions.
+For now, only one substance can be in a solution of another substance.
 
 ### Environment
 This abstraction defines the environment under which the reaction is happening.
@@ -24,7 +25,7 @@ Two major elements of the environment are `temperature` and `time`, but other en
 ### Reaction
 Reactions define the exact rules substances get transformed and how exactly they modify the environment they are in. 
 
-> These reactions are made up and are only rougly inspired by the real world. 
+> These reactions are made up and are only rougly inspired by the real world.
 
 For example, given a source of fiery magical energy, it heats up the environment over time:
 ```essentia

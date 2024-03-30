@@ -6,6 +6,12 @@ pub enum Forms {
     Gas = 3
 }
 
+impl Into<u16> for Forms {
+    fn into(self) -> u16 {
+        self as u16
+    }
+}
+
 pub fn create_forms() -> Vec<Form> {
     Vec::from([
         Form::new_with_id(Forms::Fluid as u16, "Fluid"),

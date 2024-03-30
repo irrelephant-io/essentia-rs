@@ -2,10 +2,10 @@ pub mod physics;
 pub mod reaction;
 
 mod substance;
-pub use substance::{Substance, SubstanceData};
+pub use substance::{Substance, SubstanceBuilder};
 
 mod essence;
-pub use essence::Essence;
+pub use essence::{Essence, EssenceBuilder};
 
 mod form;
 pub use form::Form;

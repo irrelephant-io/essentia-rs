@@ -10,6 +10,12 @@ pub struct TimeSpan {
     pub ticks: u16
 }
 
+impl Default for TimeSpan {
+    fn default() -> Self {
+        Self { ticks: 1 }
+    }
+}
+
 impl From<u16> for TimeSpan {
     fn from(value: u16) -> Self {
         TimeSpan { ticks: value }

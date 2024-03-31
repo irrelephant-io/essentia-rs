@@ -1,18 +1,29 @@
-use crate::{abstractions::{
-    physics::{
-        get_delta_temp, TimeSpan
+use crate::{
+    abstractions::{
+        physics::{
+            get_delta_temp, TimeSpan, Quantity
+        },
+        reaction::Product
     },
-    reaction::Product
-}, physics::Quantity, Substance};
+    engine::ReactionContext,
+    Substance
+};
 
 impl super::Essentia {
-    fn run_reactions(&self) -> Vec<Product> {
+    fn run_reactions(&mut self) -> ReactionContext {
         self.reactions
-            .iter()
-            .flat_map(|reaction| 
-                reaction.react(self)
+            .iter_groups()
+            .fold(
+                ReactionContext::new(self),
+                |context, group| {
+                    let result = group
+                        .iter_reactions()
+                        .flat_map(|r| r.react(&context))
+                        .collect::<Vec<_>>();
+
+                    context.apply(result)
+                }
             )
-            .collect()
     }
 
     pub fn simulate(&mut self, delta_time: TimeSpan) {
@@ -20,6 +31,7 @@ impl super::Essentia {
 
         self
             .run_reactions()
+            .pending_products
             .drain(..)
             .for_each(|p| {
                 match p {
@@ -29,11 +41,12 @@ impl super::Essentia {
                         self.environment.temperature += delta_temp;
                     },
                     Product::Produce(substance) => {
-                        self.substances.push(substance)
+                        self.substances.push(Substance::Normal(substance));
                     },
                     Product::Consume(substance_id, quantity) => {
                         self.consume_substance(substance_id, quantity);
-                    }
+                    },
+                    _ => todo!("This reaction type is not supported!")
                 }
             });
 
@@ -41,7 +54,8 @@ impl super::Essentia {
     }
 
     fn consume_substance(&mut self, substance_id: u16, quantity: Quantity) {
-        let found = self.substances.iter_mut()
+        let found = self.substances
+            .iter_mut()
             .enumerate()
             .find(|(_, s)| {
                 match s {

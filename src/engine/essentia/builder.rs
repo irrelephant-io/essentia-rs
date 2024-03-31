@@ -15,12 +15,12 @@ use crate::{
     Environment
 };
 
-use super::Essentia;
+use super::{reactions::ReactionLookup, Essentia};
 
 pub struct EssentiaBuilder {
     essence_lookup: HashMap::<u16, Essence>,
     form_lookup: HashMap::<u16, Form>,
-    reactions: Vec<Box<dyn Reaction>>,
+    reactions: ReactionLookup,
     starting_environment: Option<Environment>
 }
 
@@ -30,7 +30,7 @@ impl EssentiaBuilder {
             starting_environment: Option::default(),
             essence_lookup: HashMap::new(),
             form_lookup: HashMap::new(),
-            reactions: vec![]
+            reactions: ReactionLookup::new()
         }
     }
 
@@ -42,7 +42,7 @@ impl EssentiaBuilder {
             substances: vec![],
             essence_lookup: self.essence_lookup,
             form_lookup: self.form_lookup,
-            reactions: self.reactions
+            reactions: ReactionLookup::new()
         }
     }
 
@@ -55,7 +55,7 @@ impl EssentiaBuilder {
     }
 
     pub fn register_reaction(&mut self, reaction: Box<dyn Reaction>) {
-        self.reactions.push(reaction);
+        self.reactions.insert(reaction);
     }
 }
 

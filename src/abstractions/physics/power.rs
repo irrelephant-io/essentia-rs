@@ -2,7 +2,7 @@ use std::ops::{Add, Mul, Neg, Sub};
 
 use super::{Energy, Quantity, TimeSpan};
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub struct Power {
     pub watts: i16
 }

@@ -1,7 +1,8 @@
-use std::sync::atomic::{Ordering, AtomicU16};
+use std::sync::atomic::{AtomicU16, Ordering};
 
 use crate::{abstractions::physics::Quantity, engine::Essentia, Essence, Form};
 
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SubstanceData {
     pub substance_id: u16,
     pub essence_id: u16,
@@ -50,18 +51,24 @@ impl SubstanceBuilder<'_> {
         essence: Option<&Essence>,
         form: Option<&Form>,
         qty: Option<Quantity>
-    ) -> Option<SubstanceData> {
-        if let (Some(essence), Some(form), Some(qty)) = (essence, form, qty) {
-            Some(
-                SubstanceData {
-                    substance_id: SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst),
-                    quantity: qty,
-                    essence_id: essence.id,
-                    form_id: form.id
+    ) -> Result<SubstanceData, &str> {
+        if let Some(essence) = essence {
+            if let Some(form) = form {
+                if let Some(qty) = qty {
+                    Ok(SubstanceData {
+                        substance_id: SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst),
+                        essence_id: essence.id,
+                        form_id: form.id,
+                        quantity: qty
+                    })
+                } else {
+                    Err("Quantity must be specified!")
                 }
-            )
+            } else {
+                Err("Form must be specified!")
+            }
         } else {
-            None
+            Err("Essence must be specified!")
         }
     }
 
@@ -85,9 +92,9 @@ impl SubstanceBuilder<'_> {
             self.try_make_substance(self.essence, self.form, self.quantity),
             self.try_make_substance(self.solution_essence, self.solution_form, self.solution_quantity),
         ) {
-            (Some(solvent), Some(solution)) => Substance::Solution(solvent, solution),
-            (Some(solvent), None) => Substance::Normal(solvent),
-            _ => panic!("Couldn't construct substance.")
+            (Ok(solvent), Ok(solution)) => Substance::Solution(solvent, solution),
+            (Ok(solvent), Err(_)) => Substance::Normal(solvent),
+            (Err(solvent_error), _) => panic!("{}", solvent_error)
         }
     }
 }

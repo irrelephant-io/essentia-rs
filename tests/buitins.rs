@@ -1,4 +1,6 @@
-use essentia_rs::engine::{Essentia, EssentiaBuilder};
+use data::{essence::Essences, reactions::PyroflaxHeat};
+use data::form::Forms;
+use essentia_rs::{engine::{Essentia, EssentiaBuilder}, physics::{TimeSpan, Quantity, Temperature}, SubstanceBuilder};
 
 pub mod data;
 
@@ -14,10 +16,73 @@ fn setup() -> Essentia {
         .into_iter()
         .for_each(|f| builder.register_form(f));
 
+    builder.register_reaction(Box::new(PyroflaxHeat::from(50)));
+
     builder.build()
+}
+
+fn add_pyroflux(engine: &mut Essentia) {
+    engine.add_substance(
+        SubstanceBuilder::new(&engine)
+            .with_essence(Essences::Pyroflux.into())
+            .with_form(Forms::Salt.into())
+            .with_quantity(Quantity::default())
+            .build()
+    );
+}
+
+fn _add_cryodust(engine: &mut Essentia) {
+    engine.add_substance(
+        SubstanceBuilder::new(&engine)
+            .with_essence(Essences::Cryodust.into())
+            .with_form(Forms::Salt.into())
+            .with_quantity(Quantity::from(10))
+            .build()
+    );
+}
+
+fn add_water(engine: &mut Essentia) {
+    engine.add_substance(
+        SubstanceBuilder::new(&engine)
+            .with_essence(Essences::Aqua.into())
+            .with_quantity(Quantity::from(10))
+            .with_form(Forms::Fluid.into())
+            .build()
+    );
+}
+
+const TRIAL_LIMIT: u32 = 1000;
+const WATER_BOIL_TEMP: Temperature = Temperature { degrees: 100 };
+
+fn assert_trial_limit(trial: &mut u32) {
+    *trial += 1;
+    if *trial >= TRIAL_LIMIT {
+        panic!("Trial limit reached!");
+    }
 }
 
 #[test]
 fn test_form_transitions() {
-    let mut _engine = setup();
+    let mut engine = setup();
+    add_water(&mut engine);
+    add_pyroflux(&mut engine);
+
+
+    let mut trial: u32 = 0;
+    while engine.environment.temperature <= WATER_BOIL_TEMP {
+        assert_trial_limit(&mut trial);
+        engine.simulate(TimeSpan::default())
+    }
+    println!("water boiling point reached after {} trials", trial);
+    trial = 0;
+
+    while engine.get_form(Forms::Fluid.into()).into_iter().count() == 1 {
+        assert_trial_limit(&mut trial);
+        engine.simulate(TimeSpan::default());
+        assert_eq!(
+            engine.environment.temperature,
+            WATER_BOIL_TEMP,
+            "While form transition is happening, all energy goes to transition."
+        )
+    }
 }

@@ -1,10 +1,11 @@
 use essentia_rs::{physics::SpecificHeatCapacity, Essence, EssenceBuilder};
 
 pub enum Essences {
-    Pyroflux = 1,
-    Heatstone = 2,
-    Cryodust = 3,
-    Inertia = 4
+    Aqua = 1,
+    Pyroflux = 2,
+    Heatstone = 3,
+    Cryodust = 4,
+    Inertia = 5
 }
 
 impl Into<u16> for Essences {
@@ -15,6 +16,12 @@ impl Into<u16> for Essences {
 
 pub fn create_essences() -> Vec<Essence> {
     Vec::from([
+        EssenceBuilder::default()
+            .with_name("Aqua")
+            .with_custom_id(Essences::Aqua.into())
+            .with_specific_heat_capacity(SpecificHeatCapacity::from(4))
+            .build(),
+
         EssenceBuilder::default()
             .with_name("Pyroflux")
             .with_custom_id(Essences::Pyroflux.into())

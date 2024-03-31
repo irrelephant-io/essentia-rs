@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{abstractions::{reaction::Reaction, Environment, Essence, Form, Substance}, physics::TimeSpan};
+use crate::{abstractions::{Environment, Essence, Form, Substance}, physics::TimeSpan};
 
 pub struct Essentia {
     _private_ctor: (),
@@ -10,7 +10,7 @@ pub struct Essentia {
     substances: Vec::<Substance>,
     essence_lookup: HashMap::<u16, Essence>,
     form_lookup: HashMap::<u16, Form>,
-    reactions: Vec<Box<dyn Reaction>>
+    reactions: ReactionLookup
 }
 
 impl Essentia {
@@ -27,6 +27,8 @@ impl Essentia {
     }
 }
 
+mod reactions;
+
 // Contains engine simulation methods.
 mod simulation;
 
@@ -36,3 +38,5 @@ mod querying;
 // Contains code to construct an instance of an engine
 mod builder;
 pub use builder::EssentiaBuilder;
+
+use self::reactions::ReactionLookup;

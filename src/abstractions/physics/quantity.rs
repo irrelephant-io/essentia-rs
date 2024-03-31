@@ -1,4 +1,4 @@
-use std::{iter::Sum, ops::{Add, Sub, SubAssign}};
+use std::{iter::Sum, ops::{Add, AddAssign, Sub, SubAssign}};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
@@ -10,6 +10,13 @@ impl SubAssign for Quantity {
         self.mol -= rhs.mol;
     }
 }
+
+impl AddAssign for Quantity {
+    fn add_assign(&mut self, rhs: Self) {
+        self.mol += rhs.mol;
+    }
+}
+
 
 impl Quantity {
     pub fn none() -> Self {

@@ -10,14 +10,15 @@ impl super::Essentia {
     }
 
     pub fn get_all(&self) -> impl Iterator<Item = &SubstanceData> {
-        self.substances.iter()
+        self.substances
+            .iter()
             .flat_map(|s| self.map_substance(s))
 
     }
 
     pub fn get_of_essense(&self, essence_id: u16) -> impl Iterator<Item = &SubstanceData> {
-        self.get_all()
+        self
+            .get_all()
             .filter(move |&sd| sd.essence_id == essence_id)
-
     }
 }

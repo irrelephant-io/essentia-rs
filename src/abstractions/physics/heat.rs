@@ -12,6 +12,11 @@ pub struct HeatCapacity {
     pub joule_per_degree: u16
 }
 
+impl From<u16> for SpecificHeatCapacity {
+    fn from(value: u16) -> Self {
+        Self {joule_mol_per_degree: value }
+    }
+}
 
 impl Default for SpecificHeatCapacity {
     fn default() -> Self {

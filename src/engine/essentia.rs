@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::{abstractions::{reaction::Reaction, Environment, Essence, Form, Substance}, physics::TimeSpan};
 
 pub struct Essentia {
+    _private_ctor: (),
     pub environment: Environment,
     pub delta_time: TimeSpan,
 
@@ -13,25 +14,25 @@ pub struct Essentia {
 }
 
 impl Essentia {
-    pub fn new(environment: Environment) -> Self {
-        Essentia {
-            environment,
-            delta_time: TimeSpan::from(0),
-            substances: Vec::<Substance>::new(),
+    pub fn get_essence(&self, id: u16) -> Option<&Essence> {
+        self.essence_lookup.get(&id)
+    }
 
-            essence_lookup: HashMap::new(),
-            form_lookup: HashMap::new(),
-            reactions: vec![]
-        }
+    pub fn get_form(&self, id: u16) -> Option<&Form> {
+        self.form_lookup.get(&id)
+    }
+
+    pub fn add_substance(&mut self, substance: Substance) {
+        self.substances.push(substance);
     }
 }
-
-// Contains methods related to manipulating registrations
-// such as forms, essences and reactions.
-mod registrations;
 
 // Contains engine simulation methods.
 mod simulation;
 
 // Contains code for querying system's contents
 mod querying;
+
+// Contains code to construct an instance of an engine
+mod builder;
+pub use builder::EssentiaBuilder;

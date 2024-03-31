@@ -1,28 +1,30 @@
 use data::reactions::{PyroflaxHeat, CryodustChill};
 
-use essentia_rs::{Environment, SubstanceBuilder};
-use essentia_rs::engine::Essentia;
+use essentia_rs::SubstanceBuilder;
+use essentia_rs::engine::{Essentia, EssentiaBuilder};
 use essentia_rs::physics::{Quantity, TimeSpan};
 
 use crate::data::essence::Essences;
 use crate::data::form::Forms;
+
 pub mod data;
 
 fn setup() -> Essentia {
-    let mut engine = Essentia::new(Environment::new());
+    // Create engine without built-in reactions
+    let mut builder = EssentiaBuilder::new();
     
     data::essence::create_essences()
         .into_iter()
-        .for_each(|e| engine.register_essence(e));
+        .for_each(|e| builder.register_essence(e));
 
     data::form::create_forms()
         .into_iter()
-        .for_each(|f| engine.register_form(f));
+        .for_each(|f| builder.register_form(f));
 
-    engine.register_reaction(Box::new(PyroflaxHeat::default()));
-    engine.register_reaction(Box::new(CryodustChill::default()));
+    builder.register_reaction(Box::new(PyroflaxHeat::default()));
+    builder.register_reaction(Box::new(CryodustChill::default()));
 
-    engine
+    builder.build()
 }
 
 fn add_pyroflux(engine: &mut Essentia) {

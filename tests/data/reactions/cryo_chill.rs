@@ -1,4 +1,3 @@
-use std::iter::once;
 use essentia_rs::{
     engine::ReactionContext, physics::{Power, Quantity, Rate}, reaction::{Product, Reaction},
 };

@@ -3,8 +3,25 @@ use std::sync::atomic::{AtomicU16, Ordering};
 use crate::physics::{PhaseGraph, PhaseGraphBuilder};
 use super::physics::SpecificHeatCapacity;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct EssenceId {
+    id: u16
+}
+
+impl From<u16> for EssenceId {
+    fn from(value: u16) -> Self {
+        EssenceId { id: value }
+    }
+}
+
+impl From<EssenceId> for u16 {
+    fn from(value: EssenceId) -> Self {
+        value.id
+    }
+}
+
 pub struct Essence {
-    pub id: u16,
+    pub id: EssenceId,
     pub name: String,
     pub heat_capacity: SpecificHeatCapacity,
     pub phase_graph: Option<PhaseGraph>,
@@ -16,7 +33,7 @@ pub struct Essence {
 enum IdGenerationStrategy {
     #[default]
     Auto,
-    Specific(u16)
+    Specific(EssenceId)
 }
 
 static ESSENCE_COUNTER: AtomicU16 = AtomicU16::new(0);
@@ -35,12 +52,12 @@ impl EssenceBuilder {
             _private_ctor: (),
             name: self.name,
             id: match self.id_generation {
-                IdGenerationStrategy::Auto => ESSENCE_COUNTER.fetch_add(1, Ordering::SeqCst),
+                IdGenerationStrategy::Auto => ESSENCE_COUNTER.fetch_add(1, Ordering::SeqCst).into(),
                 IdGenerationStrategy::Specific(id) => {
                     ESSENCE_COUNTER.fetch_update(
                         Ordering::SeqCst,
                         Ordering::SeqCst,
-                        |current| { Some(u16::max(current, id)) }
+                        |current| { Some(u16::max(current, id.into())) }
                     ).unwrap();
 
                     id
@@ -51,7 +68,7 @@ impl EssenceBuilder {
         }
     }
 
-    pub fn with_custom_id(mut self, id: u16) -> Self {
+    pub fn with_custom_id(mut self, id: EssenceId) -> Self {
         self.id_generation = IdGenerationStrategy::Specific(id);
         self
     }

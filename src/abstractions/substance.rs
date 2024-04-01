@@ -1,12 +1,29 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use crate::{abstractions::physics::Quantity, engine::Essentia, Essence, Form};
+use crate::{abstractions::physics::Quantity, engine::Essentia, Essence, EssenceId, Form, FormId};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct SubstanceId {
+    id: u16
+}
+
+impl From<u16> for SubstanceId {
+    fn from(value: u16) -> Self {
+        SubstanceId { id: value }
+    }
+}
+
+impl From<SubstanceId> for u16 {
+    fn from(value: SubstanceId) -> Self {
+        value.id
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SubstanceData {
-    pub substance_id: u16,
-    pub essence_id: u16,
-    pub form_id: u16,
+    pub substance_id: SubstanceId,
+    pub essence_id: EssenceId,
+    pub form_id: FormId,
     pub quantity: Quantity
 }
 
@@ -56,7 +73,7 @@ impl SubstanceBuilder<'_> {
             if let Some(form) = form {
                 if let Some(qty) = qty {
                     Ok(SubstanceData {
-                        substance_id: SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst),
+                        substance_id: SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst).into(),
                         essence_id: essence.id,
                         form_id: form.id,
                         quantity: qty
@@ -72,12 +89,12 @@ impl SubstanceBuilder<'_> {
         }
     }
 
-    pub fn with_essence(mut self, essence_id: u16) -> Self {
+    pub fn with_essence(mut self, essence_id: EssenceId) -> Self {
         self.essence = self.engine.get_essence(essence_id);
         self
     }
 
-    pub fn with_form(mut self, form_id: u16) -> Self {
+    pub fn with_form(mut self, form_id: FormId) -> Self {
         self.form = self.engine.get_form(form_id);
         self
     }

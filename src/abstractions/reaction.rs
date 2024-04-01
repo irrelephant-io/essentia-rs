@@ -1,17 +1,17 @@
 use std::ops::Add;
 
 use crate::{
-    abstractions::physics::Power,
+    physics::{Power, Quantity},
     engine::ReactionContext,
-    physics::Quantity
+    EssenceId,
+    FormId
 };
-
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Product {
-    Produce(u16, u16, Quantity),
-    Dissolve(u16, u16, Quantity),
-    Consume(u16, u16, Quantity),
+    Produce(EssenceId, FormId, Quantity),
+    Dissolve(EssenceId, FormId, Quantity),
+    Consume(EssenceId, FormId, Quantity),
     Thermal(Power),
 }
 

@@ -4,9 +4,7 @@ use crate::{
             get_heat_capacity, Quantity, TimeSpan
         },
         reaction::Product
-    },
-    engine::ReactionContext,
-    Substance, SubstanceBuilder
+    }, engine::ReactionContext, EssenceId, FormId, Substance, SubstanceBuilder
 };
 
 impl super::Essentia {
@@ -75,7 +73,7 @@ impl super::Essentia {
         self.environment.time += self.delta_time;
     }
 
-    fn consume_substance(&mut self, essence_id: u16, form_id: u16, quantity: Quantity) {
+    fn consume_substance(&mut self, essence_id: EssenceId, form_id: FormId, quantity: Quantity) {
         let found = self.substances
             .iter_mut()
             .enumerate()

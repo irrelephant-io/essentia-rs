@@ -7,9 +7,11 @@ pub use abstractions::{
     Essence,
     EssenceBuilder,
     Form,
+    FormId,
     Substance,
     SubstanceBuilder,
     SubstanceData,
+    EssenceId,
     reaction,
     physics
 };

@@ -12,14 +12,15 @@ use crate::{
         Solution
     },
     physics::{HeatCapacity, TimeSpan},
-    Environment
+    Environment,
+    EssenceId, FormId
 };
 
 use super::{reactions::ReactionLookup, Essentia};
 
 pub struct EssentiaBuilder {
-    essence_lookup: HashMap::<u16, Essence>,
-    form_lookup: HashMap::<u16, Form>,
+    essence_lookup: HashMap::<EssenceId, Essence>,
+    form_lookup: HashMap::<FormId, Form>,
     reactions: ReactionLookup,
     starting_environment: Option<Environment>
 }

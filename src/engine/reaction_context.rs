@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::physics::Power;
 use crate::reaction::Product;
+use crate::{EssenceId, FormId};
 
 use super::Essentia;
 
@@ -20,7 +21,7 @@ impl<'a> ReactionContext<'a> {
 
     pub fn apply(self, products: Vec<Product>) -> Self {
         let mut thermal_product = Product::Thermal(Power::from(0));
-        let mut substance_products = HashMap::<(u16, u16), Product>::new();
+        let mut substance_products = HashMap::<(EssenceId, FormId), Product>::new();
 
         for product in self.pending_products.into_iter().chain(products.into_iter()) {
             match product {
@@ -119,8 +120,8 @@ mod tests {
         let context = ReactionContext::new(&engine_dummy);
 
         let next_context = context.apply(vec![
-            Product::Produce(0, 0, Quantity::from(5)),
-            Product::Consume(0, 0, Quantity::from(5)),
+            Product::Produce(0.into(), 0.into(), Quantity::from(5)),
+            Product::Consume(0.into(), 0.into(), Quantity::from(5)),
         ]);
 
         assert_eq!(next_context.pending_products.len(), 0);
@@ -132,15 +133,15 @@ mod tests {
         let context = ReactionContext::new(&engine_dummy);
 
         let next_context = context.apply(vec![
-            Product::Produce(0, 0, Quantity::from(5)),
-            Product::Produce(0, 0, Quantity::from(5)),
-            Product::Consume(0, 0, Quantity::from(2)),
-            Product::Produce(0, 1, Quantity::from(5))
+            Product::Produce(0.into(), 0.into(), Quantity::from(5)),
+            Product::Produce(0.into(), 0.into(), Quantity::from(5)),
+            Product::Consume(0.into(), 0.into(), Quantity::from(2)),
+            Product::Produce(0.into(), 1.into(), Quantity::from(5))
         ]);
 
         let expected = vec![
-            Product::Produce(0, 0, Quantity::from(8)),
-            Product::Produce(0, 1, Quantity::from(5))
+            Product::Produce(0.into(), 0.into(), Quantity::from(8)),
+            Product::Produce(0.into(), 1.into(), Quantity::from(5))
         ];
 
         assert!(

@@ -1,4 +1,4 @@
-use crate::{physics::PhaseGraph, Substance, SubstanceData};
+use crate::{physics::PhaseGraph, EssenceId, FormId, Substance, SubstanceData};
 
 impl super::Essentia {
 
@@ -32,13 +32,13 @@ impl super::Essentia {
             })
     }
 
-    pub fn get_of_essense(&self, essence_id: u16) -> impl Iterator<Item = &SubstanceData> {
+    pub fn get_of_essense(&self, essence_id: EssenceId) -> impl Iterator<Item = &SubstanceData> {
         self
             .get_all()
             .filter(move |sd| sd.essence_id == essence_id)
     }
 
-    pub fn get_of_form(&self, form_id: u16) -> impl Iterator<Item = &SubstanceData> {
+    pub fn get_of_form(&self, form_id: FormId) -> impl Iterator<Item = &SubstanceData> {
         self
             .get_all()
             .filter(move |sd| sd.form_id == form_id)

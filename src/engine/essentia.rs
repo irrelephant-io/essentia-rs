@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{abstractions::{Environment, Essence, Form, Substance}, physics::{HeatCapacity, TimeSpan}};
+use crate::{abstractions::{Environment, Essence, Form, Substance}, physics::{HeatCapacity, TimeSpan}, EssenceId, FormId};
 
 pub struct Essentia {
     _private_ctor: (),
@@ -9,17 +9,17 @@ pub struct Essentia {
     pub delta_time: TimeSpan,
 
     substances: Vec::<Substance>,
-    essence_lookup: HashMap::<u16, Essence>,
-    form_lookup: HashMap::<u16, Form>,
+    essence_lookup: HashMap::<EssenceId, Essence>,
+    form_lookup: HashMap::<FormId, Form>,
     reactions: ReactionLookup
 }
 
 impl Essentia {
-    pub fn get_essence(&self, id: u16) -> Option<&Essence> {
+    pub fn get_essence(&self, id: EssenceId) -> Option<&Essence> {
         self.essence_lookup.get(&id)
     }
 
-    pub fn get_form(&self, id: u16) -> Option<&Form> {
+    pub fn get_form(&self, id: FormId) -> Option<&Form> {
         self.form_lookup.get(&id)
     }
 

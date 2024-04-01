@@ -1,4 +1,4 @@
-use essentia_rs::Form;
+use essentia_rs::{Form, FormId};
 
 pub enum Forms {
     Crystalline = 1,
@@ -7,17 +7,17 @@ pub enum Forms {
     Gas = 4
 }
 
-impl Into<u16> for Forms {
-    fn into(self) -> u16 {
-        self as u16
+impl Into<FormId> for Forms {
+    fn into(self) -> FormId {
+        (self as u16).into()
     }
 }
 
 pub fn create_forms() -> Vec<Form> {
     Vec::from([
         Form::new_with_id(Forms::Crystalline.into(), "Crystalline"),
-        Form::new_with_id(Forms::Liquid as u16, "Liquid"),
-        Form::new_with_id(Forms::Salt as u16, "Salt"),
-        Form::new_with_id(Forms::Gas as u16, "Gas")
+        Form::new_with_id(Forms::Liquid.into(), "Liquid"),
+        Form::new_with_id(Forms::Salt.into(), "Salt"),
+        Form::new_with_id(Forms::Gas.into(), "Gas")
     ])
 }

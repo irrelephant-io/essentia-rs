@@ -1,4 +1,4 @@
-use essentia_rs::{physics::{Energy, PhaseTransition, SpecificHeatCapacity, Temperature}, Essence, EssenceBuilder};
+use essentia_rs::{physics::{Energy, PhaseTransition, SpecificHeatCapacity, Temperature}, Essence, EssenceBuilder, EssenceId};
 
 use super::form::Forms;
 
@@ -10,9 +10,9 @@ pub enum Essences {
     Inertia = 5
 }
 
-impl Into<u16> for Essences {
-    fn into(self) -> u16 {
-        self as u16
+impl Into<EssenceId> for Essences {
+    fn into(self) -> EssenceId {
+        (self as u16).into()
     }
 }
 

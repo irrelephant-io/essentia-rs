@@ -1,13 +1,13 @@
 use std::{collections::HashMap, ops::Range};
-
+use crate::FormId;
 use super::{Energy, Temperature};
 
 #[derive(Clone, Copy)]
 pub struct PhaseTransition {
     pub threshold: Temperature,
     pub joules_per_mol: Energy,
-    pub left_form_id: u16,
-    pub right_form_id: u16
+    pub left_form_id: FormId,
+    pub right_form_id: FormId
 }
 
 pub struct PhaseGraph {
@@ -92,14 +92,14 @@ mod test {
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(0),
             joules_per_mol: Energy::from(5),
-            left_form_id: 0,
-            right_form_id: 1
+            left_form_id: 0.into(),
+            right_form_id: 1.into()
         });
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(100),
             joules_per_mol: Energy::from(10),
-            left_form_id: 1,
-            right_form_id: 2
+            left_form_id: 1.into(),
+            right_form_id: 2.into()
         });
 
         let graph = builder.build();
@@ -114,14 +114,14 @@ mod test {
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(0),
             joules_per_mol: Energy::from(5),
-            left_form_id: 0,
-            right_form_id: 1
+            left_form_id: 0.into(),
+            right_form_id: 1.into()
         });
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(100),
             joules_per_mol: Energy::from(10),
-            left_form_id: 1,
-            right_form_id: 0
+            left_form_id: 1.into(),
+            right_form_id: 0.into()
         });
     }
 
@@ -133,14 +133,14 @@ mod test {
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(0),
             joules_per_mol: Energy::from(5),
-            left_form_id: 0,
-            right_form_id: 1
+            left_form_id: 0.into(),
+            right_form_id: 1.into()
         });
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(100),
             joules_per_mol: Energy::from(10),
-            left_form_id: 2,
-            right_form_id: 3
+            left_form_id: 2.into(),
+            right_form_id: 3.into()
         });
     }
 
@@ -151,20 +151,20 @@ mod test {
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(0),
             joules_per_mol: Energy::from(5),
-            left_form_id: 0,
-            right_form_id: 1
+            left_form_id: 0.into(),
+            right_form_id: 1.into()
         });
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(100),
             joules_per_mol: Energy::from(10),
-            left_form_id: 1,
-            right_form_id: 2
+            left_form_id: 1.into(),
+            right_form_id: 2.into()
         });
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(200),
             joules_per_mol: Energy::from(10),
-            left_form_id: 2,
-            right_form_id: 3
+            left_form_id: 2.into(),
+            right_form_id: 3.into()
         });
     }
 
@@ -175,8 +175,8 @@ mod test {
         builder.add_transition(PhaseTransition {
             threshold: Temperature::from(10),
             joules_per_mol: Energy::from(5),
-            left_form_id: 0,
-            right_form_id: 1
+            left_form_id: 0.into(),
+            right_form_id: 1.into()
         });
 
         let graph = builder.build();

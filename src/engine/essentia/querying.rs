@@ -37,4 +37,10 @@ impl super::Essentia {
             .get_all()
             .filter(move |sd| sd.essence_id == essence_id)
     }
+
+    pub fn get_of_form(&self, form_id: u16) -> impl Iterator<Item = &SubstanceData> {
+        self
+            .get_all()
+            .filter(move |sd| sd.form_id == form_id)
+    }
 }

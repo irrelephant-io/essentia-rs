@@ -1,8 +1,35 @@
 use std::{iter::Sum, ops::{Add, AddAssign, Mul, Sub, SubAssign}};
 
+use super::TimeSpan;
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
     pub mol: u16
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Rate {
+    pub mol_per_tick: u16
+}
+
+impl Default for Rate {
+    fn default() -> Self {
+        Self { mol_per_tick: 1 }
+    }
+}
+
+impl From<u16> for Rate {
+    fn from(value: u16) -> Self {
+        Rate { mol_per_tick: value }
+    }
+}
+
+impl Mul<TimeSpan> for Rate {
+    type Output = Quantity;
+
+    fn mul(self, rhs: TimeSpan) -> Self::Output {
+        Quantity { mol: self.mol_per_tick * rhs.ticks }
+    }
 }
 
 impl SubAssign for Quantity {

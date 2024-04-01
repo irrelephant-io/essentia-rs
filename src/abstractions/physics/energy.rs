@@ -1,4 +1,4 @@
-use std::{iter::Sum, ops::{Add, Div, Mul, Sub, SubAssign}};
+use std::{iter::Sum, ops::{Add, AddAssign, Div, Mul, Sub, SubAssign}};
 
 use super::{Power, TimeSpan};
 
@@ -16,6 +16,12 @@ impl Sum for Energy {
 impl SubAssign for Energy {
     fn sub_assign(&mut self, rhs: Self) {
         self.joules -= rhs.joules;
+    }
+}
+
+impl AddAssign for Energy {
+    fn add_assign(&mut self, rhs: Self) {
+        self.joules += rhs.joules;
     }
 }
 

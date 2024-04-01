@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use crate::physics::PhaseGraph;
+use crate::physics::{PhaseGraph, PhaseGraphBuilder};
 use super::physics::SpecificHeatCapacity;
 
 pub struct Essence {
@@ -66,8 +66,10 @@ impl EssenceBuilder {
         self
     }
     
-    pub fn with_phase_transitions(mut self) -> Self {
-
+    pub fn with_phase_transitions(mut self, builder_fn: impl Fn(&mut PhaseGraphBuilder) -> ()) -> Self {
+        let mut builder = PhaseGraphBuilder::default();
+        builder_fn(&mut builder);
+        self.phase_graph = Some(builder.build());
         self
     }
 }

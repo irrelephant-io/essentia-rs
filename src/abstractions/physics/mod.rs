@@ -14,7 +14,7 @@ mod power;
 pub use power::Power;
 
 mod quantity;
-pub use quantity::Quantity;
+pub use quantity::{Quantity, Rate};
 
 mod time;
 pub use time::{Time, TimeSpan};

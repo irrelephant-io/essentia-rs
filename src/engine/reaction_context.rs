@@ -20,23 +20,23 @@ impl<'a> ReactionContext<'a> {
 
     pub fn apply(self, products: Vec<Product>) -> Self {
         let mut thermal_product = Product::Thermal(Power::from(0));
-        let mut substance_products = HashMap::<u16, Product>::new();
+        let mut substance_products = HashMap::<(u16, u16), Product>::new();
 
         for product in self.pending_products.into_iter().chain(products.into_iter()) {
             match product {
                 Product::Thermal(_) => { thermal_product = thermal_product + product; },
-                Product::Produce(substance) => {
+                Product::Produce(essence_id, form_id, _) => {
                     substance_products
-                        .entry(substance.substance_id)
+                        .entry((essence_id, form_id))
                         .and_modify(|e| {
                             let result = *e + product;
                             *e = result;
                         })
                         .or_insert(product);
                 },
-                Product::Consume(id, _) => {
+                Product::Consume(essence_id, form_id, _) => {
                     substance_products
-                        .entry(id)
+                        .entry((essence_id, form_id))
                         .and_modify(|e| {
                             let result = *e + product;
                             *e = result;
@@ -51,8 +51,8 @@ impl<'a> ReactionContext<'a> {
             .into_values()
             .filter(|p| {
                 match p {
-                    Product::Consume(_, qty) => qty.mol != 0,
-                    Product::Produce(s) => s.quantity.mol != 0,
+                    Product::Consume(_, _, qty) => qty.mol != 0,
+                    Product::Produce(_, _, qty) => qty.mol != 0,
                     _ => true
                 }
             })
@@ -73,7 +73,7 @@ impl<'a> ReactionContext<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{engine::EssentiaBuilder, physics::{Power, Quantity}, reaction::Product, SubstanceData};
+    use crate::{engine::EssentiaBuilder, physics::{Power, Quantity}, reaction::Product};
     use super::ReactionContext;
 
     #[test]
@@ -119,13 +119,8 @@ mod tests {
         let context = ReactionContext::new(&engine_dummy);
 
         let next_context = context.apply(vec![
-            Product::Produce(SubstanceData {
-                substance_id: 2,
-                essence_id: 0,
-                form_id: 0,
-                quantity: Quantity::from(5)
-            }),
-            Product::Consume(2, Quantity::from(5))
+            Product::Produce(0, 0, Quantity::from(5)),
+            Product::Consume(0, 0, Quantity::from(5)),
         ]);
 
         assert_eq!(next_context.pending_products.len(), 0);
@@ -137,41 +132,15 @@ mod tests {
         let context = ReactionContext::new(&engine_dummy);
 
         let next_context = context.apply(vec![
-            Product::Produce(SubstanceData {
-                substance_id: 0,
-                essence_id: 0,
-                form_id: 0,
-                quantity: Quantity::from(5)
-            }),
-            Product::Produce(SubstanceData {
-                substance_id: 0,
-                essence_id: 0,
-                form_id: 0,
-                quantity: Quantity::from(5)
-            }),
-            Product::Consume(0, Quantity::from(2)),
-            Product::Produce(SubstanceData {
-                substance_id: 1,
-                essence_id: 0,
-                form_id: 0,
-                quantity: Quantity::from(5)
-            })
+            Product::Produce(0, 0, Quantity::from(5)),
+            Product::Produce(0, 0, Quantity::from(5)),
+            Product::Consume(0, 0, Quantity::from(2)),
+            Product::Produce(0, 1, Quantity::from(5))
         ]);
 
-
         let expected = vec![
-            Product::Produce(SubstanceData {
-                substance_id: 0,
-                essence_id: 0,
-                form_id: 0,
-                quantity: Quantity::from(8)
-            }),
-            Product::Produce(SubstanceData {
-                substance_id: 1,
-                essence_id: 0,
-                form_id: 0,
-                quantity: Quantity::from(5)
-            })
+            Product::Produce(0, 0, Quantity::from(8)),
+            Product::Produce(0, 1, Quantity::from(5))
         ];
 
         assert!(

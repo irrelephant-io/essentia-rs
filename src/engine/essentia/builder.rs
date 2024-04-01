@@ -43,7 +43,7 @@ impl EssentiaBuilder {
             substances: vec![],
             essence_lookup: self.essence_lookup,
             form_lookup: self.form_lookup,
-            reactions: ReactionLookup::new()
+            reactions: self.reactions
         }
     }
 

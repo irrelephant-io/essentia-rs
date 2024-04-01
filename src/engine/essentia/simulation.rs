@@ -41,16 +41,32 @@ impl super::Essentia {
                         self.environment.temperature += self.heat_capacity.get_delta_temp(delta_e);
                     },
                     Product::Produce(essence_id, form_id, quantity) => {
-                        self.substances.push(
-                            SubstanceBuilder::new(&self)
-                                .with_essence(essence_id)
-                                .with_form(form_id)
-                                .with_quantity(quantity)
-                                .build()
-                        );
+                        if let Some(substance_data) = self.substances
+                            .iter_mut()
+                            .find_map(|s| {
+                                if let Substance::Normal(subtance_data) = s {
+                                    if subtance_data.essence_id == essence_id && subtance_data.form_id == form_id {
+                                        Some(subtance_data)
+                                    } else {
+                                        None
+                                    }
+                                } else {
+                                    None
+                                }
+                            }) {
+                                substance_data.quantity += quantity;
+                            } else {
+                                self.substances.push(
+                                    SubstanceBuilder::new(&self)
+                                        .with_essence(essence_id)
+                                        .with_form(form_id)
+                                        .with_quantity(quantity)
+                                        .build()
+                                );
+                            }
                     },
-                    Product::Consume(substance_id, quantity) => {
-                        self.consume_substance(substance_id, quantity);
+                    Product::Consume(essence_id, form_id, quantity) => {
+                        self.consume_substance(essence_id, form_id, quantity);
                     },
                     _ => todo!("This reaction type is not supported!")
                 }
@@ -59,16 +75,18 @@ impl super::Essentia {
         self.environment.time += self.delta_time;
     }
 
-    fn consume_substance(&mut self, substance_id: u16, quantity: Quantity) {
+    fn consume_substance(&mut self, essence_id: u16, form_id: u16, quantity: Quantity) {
         let found = self.substances
             .iter_mut()
             .enumerate()
             .find(|(_, s)| {
                 match s {
                     Substance::Normal(n) =>
-                        n.substance_id == substance_id,
+                        n.essence_id == essence_id && n.form_id == form_id,
                     Substance::Solution(n, s) =>
-                        n.substance_id == substance_id || s.substance_id == substance_id
+                        n.essence_id == essence_id && n.form_id == form_id
+                        ||
+                        s.essence_id == essence_id && s.form_id == form_id
                 }
             });
 
@@ -79,10 +97,11 @@ impl super::Essentia {
                             normal.quantity -= quantity;
                         } else {
                             self.substances.remove(found_idx);
+                            
                         }
                     }
                     Substance::Solution(solvent, solution) => {
-                        if solvent.substance_id == substance_id {
+                        if solvent.essence_id == essence_id && solvent.form_id == form_id {
                             if solvent.quantity > quantity {
                                 solvent.quantity -= quantity;
                             } else {

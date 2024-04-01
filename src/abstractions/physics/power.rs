@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul, Neg, Sub};
 
-use super::{Energy, Quantity, TimeSpan};
+use super::{energy::Energy, Quantity, TimeSpan};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub struct Power {

@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Sub};
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Hash)]
 pub struct Temperature {
     pub degrees: i16
 }

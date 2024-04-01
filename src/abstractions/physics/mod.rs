@@ -8,7 +8,7 @@ mod heat;
 pub use heat::{SpecificHeatCapacity, HeatCapacity};
 
 mod heat_exchange;
-pub use heat_exchange::get_delta_temp;
+pub use heat_exchange::get_heat_capacity;
 
 mod power;
 pub use power::Power;
@@ -19,3 +19,5 @@ pub use quantity::Quantity;
 mod time;
 pub use time::{Time, TimeSpan};
 
+mod phase_graph;
+pub use phase_graph::{PhaseGraph, PhaseTransition, PhaseGraphBuilder};

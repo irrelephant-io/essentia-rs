@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
-use crate::{abstractions::{Environment, Essence, Form, Substance}, physics::TimeSpan};
+use crate::{abstractions::{Environment, Essence, Form, Substance}, physics::{HeatCapacity, TimeSpan}};
 
 pub struct Essentia {
     _private_ctor: (),
     pub environment: Environment,
+    pub heat_capacity: HeatCapacity,
     pub delta_time: TimeSpan,
 
     substances: Vec::<Substance>,

@@ -1,11 +1,13 @@
-use std::{sync::atomic::{AtomicU16, Ordering}};
+use std::sync::atomic::{AtomicU16, Ordering};
 
+use crate::physics::PhaseGraph;
 use super::physics::SpecificHeatCapacity;
 
 pub struct Essence {
     pub id: u16,
     pub name: String,
     pub heat_capacity: SpecificHeatCapacity,
+    pub phase_graph: Option<PhaseGraph>,
     
     _private_ctor: ()
 }
@@ -23,7 +25,8 @@ static ESSENCE_COUNTER: AtomicU16 = AtomicU16::new(0);
 pub struct EssenceBuilder {
     name: String,
     heat_capacity: SpecificHeatCapacity,
-    id_generation: IdGenerationStrategy
+    id_generation: IdGenerationStrategy,
+    phase_graph: Option<PhaseGraph>
 }
 
 impl EssenceBuilder {
@@ -43,6 +46,7 @@ impl EssenceBuilder {
                     id
                 }
             },
+            phase_graph: self.phase_graph,
             heat_capacity: self.heat_capacity,
         }
     }
@@ -59,6 +63,11 @@ impl EssenceBuilder {
 
     pub fn with_specific_heat_capacity(mut self, capacity: SpecificHeatCapacity) -> Self {
         self.heat_capacity = capacity;
+        self
+    }
+    
+    pub fn with_phase_transitions(mut self) -> Self {
+
         self
     }
 }

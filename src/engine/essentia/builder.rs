@@ -11,7 +11,7 @@ use crate::{
         Precipitation,
         Solution
     },
-    physics::TimeSpan,
+    physics::{HeatCapacity, TimeSpan},
     Environment
 };
 
@@ -37,6 +37,7 @@ impl EssentiaBuilder {
     pub fn build(self) -> Essentia {
         Essentia {
             _private_ctor: (),
+            heat_capacity: HeatCapacity::from(0),
             environment: self.starting_environment.unwrap_or(Environment::new()),
             delta_time: TimeSpan::from(0),
             substances: vec![],

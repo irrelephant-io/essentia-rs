@@ -12,9 +12,15 @@ pub struct HeatCapacity {
     pub joule_per_degree: u16
 }
 
+impl From<u16> for HeatCapacity {
+    fn from(value: u16) -> Self {
+        Self { joule_per_degree: value }
+    }
+}
+
 impl From<u16> for SpecificHeatCapacity {
     fn from(value: u16) -> Self {
-        Self {joule_mol_per_degree: value }
+        Self { joule_mol_per_degree: value }
     }
 }
 
@@ -31,7 +37,7 @@ impl HeatCapacity {
         }
     }
 
-    pub fn get_delta_temp(&self, e: &Energy) -> Temperature {
+    pub fn get_delta_temp(&self, e: Energy) -> Temperature {
         Temperature::from(e.joules / (self.joule_per_degree as i16))
     }
 }

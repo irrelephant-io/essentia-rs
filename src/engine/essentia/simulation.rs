@@ -1,12 +1,12 @@
 use crate::{
     abstractions::{
         physics::{
-            get_delta_temp, TimeSpan, Quantity
+            get_heat_capacity, Quantity, TimeSpan
         },
         reaction::Product
     },
     engine::ReactionContext,
-    Substance
+    Substance, SubstanceBuilder
 };
 
 impl super::Essentia {
@@ -28,6 +28,7 @@ impl super::Essentia {
 
     pub fn simulate(&mut self, delta_time: TimeSpan) {
         self.delta_time = delta_time;
+        self.heat_capacity = get_heat_capacity(&self);
 
         self
             .run_reactions()
@@ -37,11 +38,16 @@ impl super::Essentia {
                 match p {
                     Product::Thermal(power) => {
                         let delta_e = power * delta_time;
-                        let delta_temp = get_delta_temp(self, delta_e);
-                        self.environment.temperature += delta_temp;
+                        self.environment.temperature += self.heat_capacity.get_delta_temp(delta_e);
                     },
-                    Product::Produce(substance) => {
-                        self.substances.push(Substance::Normal(substance));
+                    Product::Produce(essence_id, form_id, quantity) => {
+                        self.substances.push(
+                            SubstanceBuilder::new(&self)
+                                .with_essence(essence_id)
+                                .with_form(form_id)
+                                .with_quantity(quantity)
+                                .build()
+                        );
                     },
                     Product::Consume(substance_id, quantity) => {
                         self.consume_substance(substance_id, quantity);

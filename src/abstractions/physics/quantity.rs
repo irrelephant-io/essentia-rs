@@ -1,4 +1,4 @@
-use std::{iter::Sum, ops::{Add, AddAssign, Sub, SubAssign}};
+use std::{iter::Sum, ops::{Add, AddAssign, Mul, Sub, SubAssign}};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
@@ -59,5 +59,13 @@ impl Sub for Quantity {
 impl Sum for Quantity {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         Quantity { mol: iter.map(|q| q.mol).sum() }
+    }
+}
+
+impl Mul<f32> for Quantity {
+    type Output = Quantity;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Quantity { mol: (self.mol as f32 * rhs) as u16 }
     }
 }

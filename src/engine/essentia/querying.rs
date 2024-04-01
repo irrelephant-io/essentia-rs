@@ -1,4 +1,4 @@
-use crate::{Substance, SubstanceData};
+use crate::{physics::PhaseGraph, Substance, SubstanceData};
 
 impl super::Essentia {
 
@@ -16,9 +16,25 @@ impl super::Essentia {
 
     }
 
+    pub fn get_with_phase_graphs(&self) -> impl Iterator<Item = (&SubstanceData, &PhaseGraph)> {
+        self.substances
+            .iter()
+            .filter_map(|substance| {
+                if let Substance::Normal(sd) = substance {
+                    let essence = self.get_essence(sd.essence_id).unwrap();
+                    if let Some(phase_graph)  = &essence.phase_graph {
+                        return Some((sd, phase_graph));
+                    }
+                }
+
+                // Dissolved substances are not affected by transitions
+                None
+            })
+    }
+
     pub fn get_of_essense(&self, essence_id: u16) -> impl Iterator<Item = &SubstanceData> {
         self
             .get_all()
-            .filter(move |&sd| sd.essence_id == essence_id)
+            .filter(move |sd| sd.essence_id == essence_id)
     }
 }

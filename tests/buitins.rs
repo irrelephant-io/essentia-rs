@@ -44,12 +44,22 @@ fn add_cryodust(engine: &mut Essentia) {
     );
 }
 
-fn add_water(engine: &mut Essentia) {
+fn add_water(engine: &mut Essentia, quantity: Quantity) {
     engine.add_substance(
         SubstanceBuilder::new(&engine)
             .with_essence(Essences::Aqua.into())
-            .with_quantity(Quantity::from(10))
+            .with_quantity(quantity)
             .with_form(Forms::Liquid.into())
+            .build()
+    );
+}
+
+fn add_vitae(engine: &mut Essentia, quantity: Quantity) {
+    engine.add_substance(
+        SubstanceBuilder::new(&engine)
+            .with_essence(Essences::Vitae.into())
+            .with_quantity(quantity)
+            .with_form(Forms::Crystalline.into())
             .build()
     );
 }
@@ -68,7 +78,7 @@ fn assert_trial_limit(trial: &mut u32) {
 #[test]
 fn test_water_evaporation_transitions() {
     let mut engine = setup();
-    add_water(&mut engine);
+    add_water(&mut engine, Quantity::from(10));
     add_pyroflux(&mut engine);
 
 
@@ -102,9 +112,8 @@ fn test_water_evaporation_transitions() {
 #[test]
 fn test_water_crystalization_transitions() {
     let mut engine = setup();
-    add_water(&mut engine);
+    add_water(&mut engine, Quantity::from(20));
     add_cryodust(&mut engine);
-
 
     let mut trial: u32 = 0;
     while engine.environment.temperature > WATER_CRYSTALLIZATION_TEMP {
@@ -130,4 +139,31 @@ fn test_water_crystalization_transitions() {
     }
 
     assert_eq!(engine.get_form(Forms::Crystalline.into()).into_iter().count(), 1);
+}
+
+#[test]
+fn test_solution_in_water() {
+    let mut engine = setup();
+    add_water(&mut engine, Quantity::from(20));
+    add_vitae(&mut engine, Quantity::from(50));
+
+    engine.simulate(TimeSpan::default());
+
+    // Vitae should have started dissolving in water, so now there is free vitae 
+    // and also a solution in water
+    let vitae_forms = engine
+        .get_of_essense(Essences::Vitae.into()).collect::<Vec<_>>();
+
+    assert_eq!(vitae_forms.len(), 2);
+    for vitae in &vitae_forms {
+        // Free vitae is consumed, so none of the resulting substances should be the
+        // same as the starting point
+        assert!(vitae.quantity < Quantity::from(50));
+    }
+
+    let mut trial: u32 = 0;
+    while engine.get_of_essense(Essences::Vitae.into()).count() != 1 {
+        assert_trial_limit(&mut trial);
+        engine.simulate(TimeSpan::default());
+    }
 }

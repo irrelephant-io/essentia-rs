@@ -1,4 +1,4 @@
-use crate::{physics::PhaseGraph, EssenceId, FormId, Substance, SubstanceData};
+use crate::{physics::{PhaseGraph, Solubility}, EssenceId, FormId, Substance, SubstanceData};
 
 impl super::Essentia {
 
@@ -13,7 +13,33 @@ impl super::Essentia {
         self.substances
             .iter()
             .flat_map(|s| self.map_substance(s))
+    }
 
+    pub fn get_with_solubility(&self) -> impl Iterator<Item = (&SubstanceData, Solubility)> {
+        self.substances
+            .iter()
+            .filter_map(|s| {
+                match s {
+                    Substance::Normal(sd) => {
+                        let essence = self.get_essence(sd.essence_id);
+                        if let Some(essence) = essence {
+                            if let Some(solubility) = essence.solubility {
+                                return Some((sd, solubility));
+                            }
+                        }
+                    },
+                    Substance::Solution(sd, _) => {
+                        let essence = self.get_essence(sd.essence_id);
+                        if let Some(essence) = essence {
+                            if let Some(solubility) = essence.solubility {
+                                return Some((sd, solubility));
+                            }
+                        }
+                    }
+                }
+
+                None
+            })
     }
 
     pub fn get_with_phase_graphs(&self) -> impl Iterator<Item = (&SubstanceData, &PhaseGraph)> {

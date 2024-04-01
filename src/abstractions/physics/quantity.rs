@@ -1,4 +1,4 @@
-use std::{iter::Sum, ops::{Add, AddAssign, Mul, Sub, SubAssign}};
+use std::{iter::Sum, ops::{Add, AddAssign, Div, Mul, Sub, SubAssign}};
 
 use super::TimeSpan;
 
@@ -29,6 +29,22 @@ impl Mul<TimeSpan> for Rate {
 
     fn mul(self, rhs: TimeSpan) -> Self::Output {
         Quantity { mol: self.mol_per_tick * rhs.ticks }
+    }
+}
+
+impl Mul<u8> for Quantity {
+    type Output = Quantity;
+
+    fn mul(self, rhs: u8) -> Self::Output {
+        Quantity { mol: self.mol * rhs as u32 }
+    }
+}
+
+impl Div<u8> for Quantity {
+    type Output = Quantity;
+
+    fn div(self, rhs: u8) -> Self::Output {
+        Quantity { mol: self.mol / rhs as u32 }
     }
 }
 

@@ -2,7 +2,7 @@ pub mod physics;
 pub mod reaction;
 
 mod substance;
-pub use substance::{Substance, SubstanceBuilder, SubstanceData};
+pub use substance::{Substance, SubstanceBuilder, SubstanceData, SubstanceId};
 
 mod essence;
 pub use essence::{Essence, EssenceBuilder, EssenceId};

@@ -27,6 +27,21 @@ pub struct SubstanceData {
     pub quantity: Quantity
 }
 
+impl SubstanceData {
+    pub fn new(
+        essence_id: EssenceId,
+        form_id: FormId,
+        quantity: Quantity
+    ) -> Self {
+        SubstanceData {
+            substance_id: SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst).into(),
+            essence_id,
+            form_id,
+            quantity
+        }
+    }
+}
+
 pub enum Substance {
     // Regular substance
     Normal(SubstanceData),

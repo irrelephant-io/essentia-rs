@@ -11,6 +11,6 @@ impl Reaction for Precipitation {
         vec![]
     }
     
-        // Solubility is applied before the form transitions
+    // Solubility is applied before the form transitions
     fn get_priority(&self) -> u8 { u8::MAX - 1 }
 }

@@ -1,4 +1,4 @@
-use essentia_rs::{physics::{Energy, PhaseTransition, SpecificHeatCapacity, Temperature}, Essence, EssenceBuilder, EssenceId};
+use essentia_rs::{physics::{Energy, PhaseTransition, Quantity, SpecificHeatCapacity, Temperature}, Builder, Essence, EssenceBuilder, EssenceId};
 
 use super::form::Forms;
 
@@ -7,7 +7,8 @@ pub enum Essences {
     Pyroflux = 2,
     Heatstone = 3,
     Cryodust = 4,
-    Inertia = 5
+    Inertia = 5,
+    Vitae = 6
 }
 
 impl Into<EssenceId> for Essences {
@@ -36,6 +37,22 @@ pub fn create_essences() -> Vec<Essence> {
                     left_form_id: Forms::Crystalline.into(),
                     right_form_id: Forms::Liquid.into()
                 });
+            })
+            .with_solubility(|builder| {
+                builder
+                    .solvent()
+                    .with_saturation_limit(Quantity::default())
+                    .build()
+            })
+            .build(),
+
+        EssenceBuilder::default()
+            .with_name("Vitae")
+            .with_custom_id(Essences::Vitae.into())
+            .with_solubility(|builder| {
+                builder
+                    .solute()
+                    .build()
             })
             .build(),
 

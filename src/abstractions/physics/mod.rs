@@ -21,3 +21,6 @@ pub use time::{Time, TimeSpan};
 
 mod phase_graph;
 pub use phase_graph::{PhaseGraph, PhaseTransition, PhaseGraphBuilder};
+
+mod solubility;
+pub use solubility::{Solubility, SolubilityBuilder};

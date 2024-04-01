@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::abstractions::SubstanceId;
 use crate::physics::Power;
 use crate::reaction::Product;
 use crate::{EssenceId, FormId};
@@ -22,6 +23,7 @@ impl<'a> ReactionContext<'a> {
     pub fn apply(self, products: Vec<Product>) -> Self {
         let mut thermal_product = Product::Thermal(Power::from(0));
         let mut substance_products = HashMap::<(EssenceId, FormId), Product>::new();
+        let mut dissolution_products = HashMap::<(EssenceId, FormId, SubstanceId), Product>::new();
 
         for product in self.pending_products.into_iter().chain(products.into_iter()) {
             match product {
@@ -44,16 +46,36 @@ impl<'a> ReactionContext<'a> {
                         })
                         .or_insert(product);
                 },
-                _ => { todo!("This product is not supported" )}
+                Product::Dissolve(essence_id, form_id, substance_id, _) => {
+                    dissolution_products
+                        .entry((essence_id, form_id, substance_id))
+                        .and_modify(|e| {
+                            let result = *e + product;
+                            *e = result;
+                        })
+                        .or_insert(product);
+                },
+                Product::Precipitate(essence_id, form_id, substance_id, _) => {
+                    dissolution_products
+                        .entry((essence_id, form_id, substance_id))
+                        .and_modify(|e| {
+                            let result = *e + product;
+                            *e = result;
+                        })
+                        .or_insert(product);
+                },
             }
         }
 
         let mut products_vec = substance_products
             .into_values()
+            .chain(dissolution_products.into_values())
             .filter(|p| {
                 match p {
                     Product::Consume(_, _, qty) => qty.mol != 0,
                     Product::Produce(_, _, qty) => qty.mol != 0,
+                    Product::Dissolve(_, _, _, qty) => qty.mol != 0,
+                    Product::Precipitate(_, _, _, qty) => qty.mol != 0,
                     _ => true
                 }
             })

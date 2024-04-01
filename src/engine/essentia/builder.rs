@@ -65,7 +65,7 @@ impl Default for EssentiaBuilder {
     fn default() -> Self {
         let mut builder = Self::new();
         builder.register_reaction(Box::new(FormTransition {}));
-        builder.register_reaction(Box::new(Solution {}));
+        builder.register_reaction(Box::new(Solution { optimal_dissolution_speed_percent: 20 }));
         builder.register_reaction(Box::new(Precipitation {}));
         builder
     }

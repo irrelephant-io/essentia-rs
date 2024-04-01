@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use crate::physics::{PhaseGraph, PhaseGraphBuilder};
+use crate::{physics::{PhaseGraph, PhaseGraphBuilder, Quantity, Solubility, SolubilityBuilder}, Builder};
 use super::physics::SpecificHeatCapacity;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -25,6 +25,7 @@ pub struct Essence {
     pub name: String,
     pub heat_capacity: SpecificHeatCapacity,
     pub phase_graph: Option<PhaseGraph>,
+    pub solubility: Option<Solubility>,
     
     _private_ctor: ()
 }
@@ -43,7 +44,8 @@ pub struct EssenceBuilder {
     name: String,
     heat_capacity: SpecificHeatCapacity,
     id_generation: IdGenerationStrategy,
-    phase_graph: Option<PhaseGraph>
+    phase_graph: Option<PhaseGraph>,
+    solubility: Option<Solubility>
 }
 
 impl EssenceBuilder {
@@ -65,6 +67,7 @@ impl EssenceBuilder {
             },
             phase_graph: self.phase_graph,
             heat_capacity: self.heat_capacity,
+            solubility: self.solubility
         }
     }
 
@@ -87,6 +90,12 @@ impl EssenceBuilder {
         let mut builder = PhaseGraphBuilder::default();
         builder_fn(&mut builder);
         self.phase_graph = Some(builder.build());
+        self
+    }
+
+    pub fn with_solubility(mut self, builder_fn: impl FnOnce(SolubilityBuilder) -> Solubility) -> Self {
+        let builder = SolubilityBuilder::default();
+        self.solubility = Some(builder_fn(builder));
         self
     }
 }

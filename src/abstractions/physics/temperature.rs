@@ -2,7 +2,7 @@ use std::ops::{Add, AddAssign, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Hash)]
 pub struct Temperature {
-    pub degrees: i16
+    pub degrees: i32
 }
 
 impl Default for Temperature {
@@ -11,8 +11,8 @@ impl Default for Temperature {
     }
 }
 
-impl From<i16> for Temperature {
-    fn from(value: i16) -> Self {
+impl From<i32> for Temperature {
+    fn from(value: i32) -> Self {
         Temperature { degrees: value }
     }
 }

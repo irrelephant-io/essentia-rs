@@ -4,22 +4,22 @@ use super::{Energy, Quantity, Temperature};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct SpecificHeatCapacity {
-    pub joule_mol_per_degree: u16
+    pub joule_mol_per_degree: u32
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct HeatCapacity {
-    pub joule_per_degree: u16
+    pub joule_per_degree: u32
 }
 
-impl From<u16> for HeatCapacity {
-    fn from(value: u16) -> Self {
+impl From<u32> for HeatCapacity {
+    fn from(value: u32) -> Self {
         Self { joule_per_degree: value }
     }
 }
 
-impl From<u16> for SpecificHeatCapacity {
-    fn from(value: u16) -> Self {
+impl From<u32> for SpecificHeatCapacity {
+    fn from(value: u32) -> Self {
         Self { joule_mol_per_degree: value }
     }
 }
@@ -38,7 +38,7 @@ impl HeatCapacity {
     }
 
     pub fn get_delta_temp(&self, e: Energy) -> Temperature {
-        Temperature::from(e.joules / (self.joule_per_degree as i16))
+        Temperature::from(e.joules / (self.joule_per_degree as i32))
     }
 }
 

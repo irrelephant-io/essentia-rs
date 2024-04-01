@@ -4,7 +4,7 @@ use super::{Power, TimeSpan};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct Energy {
-    pub joules: i16
+    pub joules: i32
 }
 
 impl Sum for Energy {
@@ -26,7 +26,7 @@ impl AddAssign for Energy {
 }
 
 impl Energy {
-    pub fn from(joules: i16) -> Self {
+    pub fn from(joules: i32) -> Self {
         Energy { joules }
     }
 }
@@ -47,19 +47,19 @@ impl Sub for Energy {
     }
 }
 
-impl Mul<i16> for Energy {
+impl Mul<i32> for Energy {
     type Output = Energy;
 
-    fn mul(self, rhs: i16) -> Self::Output {
+    fn mul(self, rhs: i32) -> Self::Output {
         Self::Output { joules: self.joules * rhs }
     }
 }
 
-impl Mul<u16> for Energy {
+impl Mul<u32> for Energy {
     type Output = Energy;
 
-    fn mul(self, rhs: u16) -> Self::Output {
-        Self::Output { joules: self.joules * rhs as i16 }
+    fn mul(self, rhs: u32) -> Self::Output {
+        Self::Output { joules: self.joules * rhs as i32 }
     }
 }
 
@@ -67,6 +67,6 @@ impl Div<TimeSpan> for Energy {
     type Output = Power;
     
     fn div(self, rhs: TimeSpan) -> Self::Output {
-        Self::Output { watts: self.joules / rhs.ticks as i16 }
+        Self::Output { watts: self.joules / rhs.ticks as i32 }
     }
 }

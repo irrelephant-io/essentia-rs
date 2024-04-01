@@ -7,11 +7,13 @@ use crate::{
     FormId
 };
 
+use super::substance::SubstanceId;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Product {
     Produce(EssenceId, FormId, Quantity),
-    Dissolve(EssenceId, FormId, Quantity),
     Consume(EssenceId, FormId, Quantity),
+    Dissolve(EssenceId, FormId, SubstanceId, Quantity),
     Thermal(Power),
 }
 

@@ -4,12 +4,12 @@ use super::TimeSpan;
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
-    pub mol: u16
+    pub mol: u32
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Rate {
-    pub mol_per_tick: u16
+    pub mol_per_tick: u32
 }
 
 impl Default for Rate {
@@ -18,8 +18,8 @@ impl Default for Rate {
     }
 }
 
-impl From<u16> for Rate {
-    fn from(value: u16) -> Self {
+impl From<u32> for Rate {
+    fn from(value: u32) -> Self {
         Rate { mol_per_tick: value }
     }
 }
@@ -57,8 +57,8 @@ impl Default for Quantity {
     }
 }
 
-impl From<u16> for Quantity {
-    fn from(value: u16) -> Self {
+impl From<u32> for Quantity {
+    fn from(value: u32) -> Self {
         Quantity { mol: value }
     }
 }
@@ -93,6 +93,6 @@ impl Mul<f32> for Quantity {
     type Output = Quantity;
 
     fn mul(self, rhs: f32) -> Self::Output {
-        Quantity { mol: (self.mol as f32 * rhs) as u16 }
+        Quantity { mol: (self.mol as f32 * rhs) as u32 }
     }
 }

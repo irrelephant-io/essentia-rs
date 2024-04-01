@@ -7,7 +7,7 @@ pub struct Time {
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct TimeSpan {
-    pub ticks: u16
+    pub ticks: u32
 }
 
 impl Default for TimeSpan {
@@ -16,8 +16,8 @@ impl Default for TimeSpan {
     }
 }
 
-impl From<u16> for TimeSpan {
-    fn from(value: u16) -> Self {
+impl From<u32> for TimeSpan {
+    fn from(value: u32) -> Self {
         TimeSpan { ticks: value }
     }
 }

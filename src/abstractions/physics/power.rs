@@ -4,11 +4,11 @@ use super::{energy::Energy, Quantity, TimeSpan};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub struct Power {
-    pub watts: i16
+    pub watts: i32
 }
 
-impl From<i16> for Power {
-    fn from(value: i16) -> Self {
+impl From<i32> for Power {
+    fn from(value: i32) -> Self {
         Power { watts: value }
     }
 }
@@ -17,7 +17,7 @@ impl Mul<Quantity> for Power {
     type Output = Power;
 
     fn mul(self, rhs: Quantity) -> Self::Output {
-        Self::Output { watts: self.watts * rhs.mol as i16 }
+        Self::Output { watts: self.watts * rhs.mol as i32 }
     }
 }
 
@@ -53,6 +53,6 @@ impl Mul<TimeSpan> for Power {
     type Output = Energy;
 
     fn mul(self, rhs: TimeSpan) -> Self::Output {
-        Energy { joules: self.watts * rhs.ticks as i16 }
+        Energy { joules: self.watts * rhs.ticks as i32 }
     }
 }

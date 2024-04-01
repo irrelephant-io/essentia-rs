@@ -36,6 +36,6 @@ impl PyroflaxHeat {
 
 impl From<u16> for PyroflaxHeat {
     fn from(value: u16) -> Self {
-        PyroflaxHeat { power_per_mol: Power::from(value as i16) }
+        PyroflaxHeat { power_per_mol: Power::from(value as i32) }
     }
 }

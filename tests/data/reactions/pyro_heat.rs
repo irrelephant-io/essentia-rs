@@ -12,10 +12,15 @@ impl Reaction for PyroflaxHeat {
         &self,
         context: &ReactionContext
     ) -> Vec::<Product> {
-        let total_pyro = context
-            .engine
-            .get_of_essense(Essences::Pyroflux.into())
-            .map(|pyro| pyro.quantity)
+        let total_pyro = context.engine
+            .iter_all()
+            .filter_map(|s| {
+                if s.get_essence() == Essences::Pyroflux.into() {
+                    Some(s.get_quantity())
+                } else {
+                    None
+                }
+            })
             .sum::<Quantity>();
 
         if total_pyro.mol > 0 {

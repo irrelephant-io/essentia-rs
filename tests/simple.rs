@@ -30,6 +30,7 @@ fn setup() -> Essentia {
 fn add_pyroflux(engine: &mut Essentia) {
     engine.add_substance(
         SubstanceBuilder::new(&engine)
+            .is_normal()
             .with_essence(Essences::Pyroflux.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::default())
@@ -40,6 +41,7 @@ fn add_pyroflux(engine: &mut Essentia) {
 fn add_cryodust(engine: &mut Essentia) {
     engine.add_substance(
         SubstanceBuilder::new(&engine)
+            .is_normal()
             .with_essence(Essences::Cryodust.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::from(10))
@@ -50,6 +52,7 @@ fn add_cryodust(engine: &mut Essentia) {
 fn add_inertia(engine: &mut Essentia) {
     engine.add_substance(
         SubstanceBuilder::new(&engine)
+            .is_normal()
             .with_essence(Essences::Inertia.into())
             .with_form(Forms::Gas.into())
             .with_quantity(Quantity::default())
@@ -60,6 +63,7 @@ fn add_inertia(engine: &mut Essentia) {
 fn add_heatstone(engine: &mut Essentia) {
     engine.add_substance(
         SubstanceBuilder::new(&engine)
+            .is_normal()
             .with_essence(Essences::Heatstone.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::from(10))
@@ -74,7 +78,7 @@ fn simulate_empty_should_pass_time() {
     let prev_time = engine.environment.time;
     engine.simulate(TimeSpan::from(10));
 
-    assert_eq!(engine.get_all().count(), 0);
+    assert_eq!(engine.iter_all().count(), 0);
     assert!(engine.environment.time > prev_time);
 }
 
@@ -90,7 +94,7 @@ fn simulate_simple_exotherm() {
     engine.simulate(TimeSpan::from(2));
     let temp_sample_2 = engine.environment.temperature;
 
-    assert_eq!(engine.get_all().count(), 1);
+    assert_eq!(engine.iter_all().count(), 1);
     assert!(temp_sample_pre < engine.environment.temperature);
     assert!(
         temp_sample_2 - temp_sample_1 > temp_sample_1 - temp_sample_pre,
@@ -140,10 +144,15 @@ fn inertia_doesnt_do_anything() {
 
 fn get_quantity_of(engine: &Essentia, essence: Essences) -> Quantity {
     engine
-        .get_of_essense(essence.into())
-        .last()
-        .map(|x| x.quantity)
-        .unwrap_or(Quantity::none())
+        .iter_all()
+        .filter_map(|s| {
+            if s.get_essence() == essence.into() {
+                Some(s.get_quantity())
+            } else {
+                None
+            }
+        })
+        .sum()
 }
 
 #[test]
@@ -168,5 +177,5 @@ fn cryo_is_consumed_over_time() {
     assert!(cryo_pre > cryo_1);
     assert_eq!(temp_sample_2, temp_sample_1);
     assert_eq!(cryo_2, cryo_1);
-    assert_eq!(engine.get_all().count(), 0);
+    assert_eq!(engine.iter_all().count(), 0);
 }

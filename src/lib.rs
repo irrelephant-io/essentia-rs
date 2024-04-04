@@ -1,5 +1,7 @@
 #![feature(fn_traits)]
 #![feature(unboxed_closures)]
+#![feature(hash_extract_if)]
+#![feature(option_take_if)]
 
 mod abstractions;
 pub use abstractions::{

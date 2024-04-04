@@ -2,6 +2,7 @@ use essentia_rs::{physics::{Energy, PhaseTransition, Quantity, SpecificHeatCapac
 
 use super::form::Forms;
 
+#[derive(Clone, Copy)]
 pub enum Essences {
     Aqua = 1,
     Pyroflux = 2,
@@ -40,7 +41,8 @@ pub fn create_essences() -> Vec<Essence> {
             })
             .with_solubility(|builder| {
                 builder
-                    .solvent()
+                    .is_solvent()
+                    .when_in_form(Forms::Liquid.into())
                     .with_saturation_limit(Quantity::default())
                     .build()
             })
@@ -51,7 +53,8 @@ pub fn create_essences() -> Vec<Essence> {
             .with_custom_id(Essences::Vitae.into())
             .with_solubility(|builder| {
                 builder
-                    .solute()
+                    .is_solute()
+                    .soluble_in_form(Forms::Crystalline.into())
                     .build()
             })
             .build(),

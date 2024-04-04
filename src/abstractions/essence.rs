@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use crate::{physics::{PhaseGraph, PhaseGraphBuilder, Quantity, Solubility, SolubilityBuilder}, Builder};
+use crate::physics::{PhaseGraph, PhaseGraphBuilder, Solubility, SolubilityBuilder};
 use super::physics::SpecificHeatCapacity;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

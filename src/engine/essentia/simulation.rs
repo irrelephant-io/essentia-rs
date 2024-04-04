@@ -1,10 +1,12 @@
+use std::collections::HashSet;
+
 use crate::{
     abstractions::{
         physics::{
             get_heat_capacity, Quantity, TimeSpan
         },
         reaction::Product, SubstanceId
-    }, engine::ReactionContext, Either, EssenceId, FormId, Substance, SubstanceBuilder, SubstanceData
+    }, engine::ReactionContext, EssenceId, FormId, Substance, SubstanceBuilder
 };
 
 impl super::Essentia {
@@ -55,135 +57,110 @@ impl super::Essentia {
     }
 
     fn dissolve_substance(&mut self, essence_id: EssenceId, form_id: FormId, substance_id: SubstanceId, qty_to_dissolve: Quantity) {
-        let pos_or_solvent = self.substances
-            .iter_mut()
-            .enumerate()
-            .find_map(|(idx, s)| {
-                match s {
-                    Substance::Normal(substance_data) => {
-                        if substance_data.substance_id == substance_id {
-                            return Some(Either::Left(idx));
-                        }
-                    },
-                    Substance::Solution(substance_data, _) => {
-                        if substance_data.substance_id == substance_id {
-                            return Some(Either::Right(s));
-                        }
-                    }
+        let solute_ids = self.get_matching_solute_ids(essence_id, form_id);
+        let solvent = self.substances.remove(&substance_id);
+        if let Some(solvent) = solvent {
+            let solutes = self.substances
+                .extract_if(|id, _| solute_ids.contains(id))
+                .collect::<Vec<_>>();
+            let mut solution_builder = SubstanceBuilder::new(&self)
+                .is_solution()
+                .with_base(solvent);
+            
+            let mut remainders = vec![];
+            for (_, solute) in solutes {
+                let (solute, remainder) = solute.divide(qty_to_dissolve);
+                solution_builder.with_solute(solute, qty_to_dissolve);
+                if let Some(remainder) = remainder {
+                    remainders.push(remainder);
                 }
-                return None;
-            });
-
-        if let Some(solvent_or_pos) = pos_or_solvent {
-            match solvent_or_pos {
-                Either::Left(idx) => {
-                    let solvent = self.substances.remove(idx);
-                    if let Substance::Normal(solvent_data) = solvent {
-                        self.substances.push(
-                            Substance::Solution(
-                                solvent_data,
-                                SubstanceData::new(essence_id, form_id, qty_to_dissolve)
-                            )
-                        );
-                    }
-                },
-                Either::Right(Substance::Solution(_, solute)) => {
-                    solute.quantity += qty_to_dissolve;
-                },
-                _ => {}
             }
-        }
-
-        let solute_position = self.substances
-            .iter()
-            .position(|s| {
-                if let Substance::Normal(subtance_data) = s {
-                    if subtance_data.essence_id == essence_id && subtance_data.form_id == form_id {
-                        return true;
-                    }
-                }
-                return false;
-            });
-        if let Some(solute_position) = solute_position {
-            let solute = self.substances.get_mut(solute_position).unwrap();
-            if let Substance::Normal(solute) = solute {
-                if solute.quantity > qty_to_dissolve {
-                    solute.quantity -= qty_to_dissolve;
-                } else {
-                    self.substances.remove(solute_position);
-                }
+            self.add_substance(solution_builder.build());
+            for remainder in remainders {
+                self.add_substance(remainder);
             }
         }
     }
 
-    fn produce_substance(&mut self, essence_id: EssenceId, form_id: FormId, quantity: Quantity) {
-        if let Some(substance_data) = self.substances
-            .iter_mut()
-            .find_map(|s| {
-                if let Substance::Normal(subtance_data) = s {
-                    if subtance_data.essence_id == essence_id && subtance_data.form_id == form_id {
-                        return Some(subtance_data);
+    fn get_matching_solute_ids(&mut self, essence_id: EssenceId, form_id: FormId) -> HashSet<SubstanceId> {
+        self.substances.values()
+            .filter_map(|substance| {
+                // Only normal substances can be solutes
+                if let Substance::Free(id, data) = substance {
+                    if data.essence_id == essence_id && data.form_id == form_id {
+                        return Some(id);
                     }
                 }
+    
                 return None;
-            }) {
-                substance_data.quantity += quantity;
-            } else {
-                self.substances.push(
-                    SubstanceBuilder::new(&self)
-                        .with_essence(essence_id)
-                        .with_form(form_id)
-                        .with_quantity(quantity)
-                        .build()
-                );
+            })
+            .copied()
+            .collect::<HashSet<_>>()
+    }
+    
+    fn produce_substance(&mut self, essence_id: EssenceId, form_id: FormId, quantity: Quantity) {
+        for (_, substance) in self.substances.iter_mut() {
+            match substance {
+                Substance::Free(_, data) => {
+                    if data.essence_id == essence_id && data.form_id == form_id {
+                        data.quantity += quantity;
+                        return;
+                    }
+                },
+                Substance::Solution(_, data, _) => {
+                    if data.essence_id == essence_id && data.form_id == form_id {
+                        data.quantity += quantity;
+                        return;
+                    }
+                }
             }
+        }
+
+        self.add_substance(
+            SubstanceBuilder::new(self)
+                .is_normal()
+                .with_essence(essence_id)
+                .with_form(form_id)
+                .with_quantity(quantity)
+                .build()
+        );
     }
     
     fn consume_substance(&mut self, essence_id: EssenceId, form_id: FormId, quantity: Quantity) {
-        let found = self.substances
-            .iter_mut()
-            .enumerate()
-            .find(|(_, s)| {
-                match s {
-                    Substance::Normal(n) =>
-                        n.essence_id == essence_id && n.form_id == form_id,
-                    Substance::Solution(n, s) =>
-                        n.essence_id == essence_id && n.form_id == form_id
-                        ||
-                        s.essence_id == essence_id && s.form_id == form_id
-                }
-            });
-
-            if let Some((found_idx, found)) = found {
-                match found {
-                    Substance::Normal(normal) => {
-                        if normal.quantity > quantity {
-                            normal.quantity -= quantity;
+        let mut quantity_left = quantity;
+        self.substances.retain(|_, substance| {
+            if quantity_left == Quantity::none() {
+                return true;
+            }
+            match substance {
+                Substance::Free(_, data) => {
+                    if data.essence_id == essence_id && data.form_id == form_id {
+                        if data.quantity > quantity_left {
+                            data.quantity -= quantity_left;
+                            quantity_left = Quantity::none();
+                            return true;
                         } else {
-                            self.substances.remove(found_idx);
-                            
+                            quantity_left -= data.quantity;
+                            return false;
                         }
                     }
-                    Substance::Solution(solvent, solution) => {
-                        if solvent.essence_id == essence_id && solvent.form_id == form_id {
-                            if solvent.quantity > quantity {
-                                solvent.quantity -= quantity;
-                            } else {
-                                if let Substance::Solution(_, solution) = self.substances.remove(found_idx) {
-                                    self.substances.push(Substance::Normal(solution));
-                                }
-                            }
+                    return true;
+                },
+                Substance::Solution(_, data, _) => {
+                    if data.essence_id == essence_id && data.form_id == form_id {
+                        if data.quantity > quantity_left {
+                            data.quantity -= quantity_left;
+                            quantity_left = Quantity::none();
+                            return true;
                         } else {
-                            if solution.quantity > quantity {
-                                solution.quantity -= quantity;
-                            } else {
-                                if let Substance::Solution(solvent, _) = self.substances.remove(found_idx) {
-                                    self.substances.push(Substance::Normal(solvent));
-                                }
-                            }
+                            quantity_left -= data.quantity;
+                            return false;
                         }
                     }
+                    return true;
                 }
             }
+        });
+
     }
 }

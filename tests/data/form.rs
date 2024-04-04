@@ -1,5 +1,6 @@
 use essentia_rs::{Form, FormId};
 
+#[derive(Clone, Copy)]
 pub enum Forms {
     Crystalline = 1,
     Liquid = 2,

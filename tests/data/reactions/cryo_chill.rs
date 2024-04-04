@@ -16,12 +16,15 @@ impl Reaction for CryodustChill {
     ) -> Vec::<Product> {
         let all_cryo = context
             .engine
-            .get_of_essense(Essences::Cryodust.into())
+            .iter_all()
+            .filter(|s| 
+                s.get_essence() == Essences::Cryodust.into()
+            )
             .collect::<Vec<_>>();
 
         let total_cryo = all_cryo
             .iter()
-            .map(|pyro| pyro.quantity)
+            .map(|c| c.get_quantity())
             .sum::<Quantity>();
 
         if total_cryo.mol > 0 {
@@ -33,8 +36,8 @@ impl Reaction for CryodustChill {
                 .iter()
                 .for_each(|c| {
                     products.push(Product::Consume(
-                        c.essence_id,
-                        c.form_id,
+                        c.get_essence(),
+                        c.get_form(),
                         self.consumption_rate * context.engine.delta_time
                     ));
                 });

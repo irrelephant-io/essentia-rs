@@ -41,7 +41,7 @@ impl EssentiaBuilder {
             heat_capacity: HeatCapacity::from(0),
             environment: self.starting_environment.unwrap_or(Environment::new()),
             delta_time: TimeSpan::from(0),
-            substances: vec![],
+            substances: HashMap::new(),
             essence_lookup: self.essence_lookup,
             form_lookup: self.form_lookup,
             reactions: self.reactions

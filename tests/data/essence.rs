@@ -53,8 +53,8 @@ pub fn create_essences() -> Vec<Essence> {
             .with_custom_id(Essences::Vitae.into())
             .with_solubility(|builder| {
                 builder
-                    .is_solute()
-                    .soluble_in_form(Forms::Crystalline.into())
+                    .is_soluble()
+                    .when_in_form(Forms::Crystalline.into())
                     .build()
             })
             .build(),

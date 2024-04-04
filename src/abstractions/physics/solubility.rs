@@ -16,7 +16,7 @@ impl SolubilityBuilder {
         SolventBuilder::default()
     }
 
-    pub fn is_solute(self) -> SoluteBuilder {
+    pub fn is_soluble(self) -> SoluteBuilder {
         SoluteBuilder::default()
     }
 }
@@ -72,7 +72,7 @@ impl SoluteBuilder {
         self
     }
 
-    pub fn soluble_in_form(mut self, form_id: FormId) -> Self {
+    pub fn when_in_form(mut self, form_id: FormId) -> Self {
         self.form_id = Some(form_id);
         self
     }

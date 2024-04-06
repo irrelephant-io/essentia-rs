@@ -1,11 +1,36 @@
-use crate::{Builder, FormId};
+use crate::{Builder, FormId, Substance};
 
-use super::Quantity;
+use super::{quantity::PerMol, Quantity};
 
 #[derive(Clone, Copy)]
 pub enum Solubility {
-    Solvent(FormId, Quantity),
-    Solute(FormId, Quantity)
+    Solvent(FormId, PerMol),
+    Solute(FormId, PerMol)
+}
+
+impl Solubility {
+
+    pub fn get_saturation_limit(&self, substance: &Substance) -> Quantity {
+        if let Solubility::Solvent(_, limit_per_unit) = *self {
+            limit_per_unit * substance.get_quantity()
+        } else {
+            Quantity::none()
+        }
+    }
+
+    pub fn get_saturation_percent(&self, solvent: &Substance) -> f32 {
+        match solvent {
+            Substance::Free(_, _) => 0.0,
+            Substance::Solution(_, data, solutes) => {
+                
+
+                solutes
+                    .iter()
+                    .map(|s| s.quantity).sum::<Quantity>().mmol as f32
+                / data.quantity.mmol as f32
+            }
+        }
+    }
 }
 
 #[derive(Default)]
@@ -23,23 +48,21 @@ impl SolubilityBuilder {
 
 #[derive(Default)]
 pub struct SolventBuilder {
-    saturation_limit: Option<Quantity>,
+    saturation_limit: Option<PerMol>,
     form_id: Option<FormId>
 }
 
 impl Builder<Solubility> for SolventBuilder {
     fn build(&self) -> Solubility {
-        let limit = self.saturation_limit.unwrap_or_default();
-        if let Some(form_id) = self.form_id {
-            Solubility::Solvent(form_id, limit)
-        } else {
-            panic!("Solvent must define a form in which it acts as solvent");
-        }
+        Solubility::Solvent(
+            self.form_id.expect("Form id is required!"),
+            self.saturation_limit.unwrap_or_default()
+        )
     }
 }
 
 impl SolventBuilder {
-    pub fn with_saturation_limit(mut self, per_mol: Quantity) -> Self {
+    pub fn with_saturation_limit(mut self, per_mol: PerMol) -> Self {
         self.saturation_limit = Some(per_mol);
         self
     }
@@ -52,22 +75,21 @@ impl SolventBuilder {
 
 #[derive(Default)]
 pub struct SoluteBuilder {
-    weight: Option<Quantity>,
+    weight: Option<PerMol>,
     form_id: Option<FormId>
 }
 
 impl Builder<Solubility> for SoluteBuilder {
     fn build(&self) -> Solubility {
-        if self.form_id.is_none() {
-            panic!("Must specify solute form");
-        }
-        let weight = self.weight.unwrap_or_default();
-        Solubility::Solute(self.form_id.unwrap(), weight)
+        Solubility::Solute(
+            self.form_id.expect("Form id is required!"),
+            self.weight.unwrap_or_default()
+        )
     }
 }
 
 impl SoluteBuilder {
-    pub fn with_weight(mut self, per_mol: Quantity) -> Self {
+    pub fn with_weight(mut self, per_mol: PerMol) -> Self {
         self.weight = Some(per_mol);
         self
     }

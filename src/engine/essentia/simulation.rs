@@ -70,12 +70,13 @@ impl super::Essentia {
             let mut remainders = vec![];
             for (_, solute) in solutes {
                 let (solute, remainder) = solute.divide(qty_to_dissolve);
-                solution_builder.with_solute(solute, qty_to_dissolve);
+                solution_builder = solution_builder.with_solute(solute, qty_to_dissolve);
                 if let Some(remainder) = remainder {
                     remainders.push(remainder);
                 }
             }
-            self.add_substance(solution_builder.build());
+            let substance = solution_builder.build();
+            self.add_substance(substance);
             for remainder in remainders {
                 self.add_substance(remainder);
             }

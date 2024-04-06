@@ -1,4 +1,4 @@
-use essentia_rs::{physics::{Energy, PhaseTransition, Quantity, SpecificHeatCapacity, Temperature}, Builder, Essence, EssenceBuilder, EssenceId};
+use essentia_rs::{physics::{Energy, PhaseTransition, PerMol, SpecificHeatCapacity, Temperature}, Builder, Essence, EssenceBuilder, EssenceId};
 
 use super::form::Forms;
 
@@ -43,7 +43,7 @@ pub fn create_essences() -> Vec<Essence> {
                 builder
                     .is_solvent()
                     .when_in_form(Forms::Liquid.into())
-                    .with_saturation_limit(Quantity::default())
+                    .with_saturation_limit(PerMol::default())
                     .build()
             })
             .build(),
@@ -67,19 +67,19 @@ pub fn create_essences() -> Vec<Essence> {
         EssenceBuilder::default()
             .with_name("Heatstone")
             .with_custom_id(Essences::Heatstone.into())
-            .with_specific_heat_capacity(SpecificHeatCapacity { joule_mol_per_degree: 10 })
+            .with_specific_heat_capacity(SpecificHeatCapacity { joule_mmol_per_degree: 10 })
             .build(),
 
         EssenceBuilder::default()
             .with_name("Cryodust")
             .with_custom_id(Essences::Cryodust.into())
-            .with_specific_heat_capacity(SpecificHeatCapacity { joule_mol_per_degree: 5 })
+            .with_specific_heat_capacity(SpecificHeatCapacity { joule_mmol_per_degree: 5 })
             .build(),
 
         EssenceBuilder::default()
             .with_name("Inertia")
             .with_custom_id(Essences::Inertia.into())
-            .with_specific_heat_capacity(SpecificHeatCapacity { joule_mol_per_degree: 0})
+            .with_specific_heat_capacity(SpecificHeatCapacity { joule_mmol_per_degree: 0})
             .build()
     ])
 }

@@ -48,25 +48,28 @@ impl EssentiaBuilder {
         }
     }
 
-    pub fn register_essence(&mut self, essence: Essence) {
+    pub fn register_essence(mut self, essence: Essence) -> Self {
         self.essence_lookup.insert(essence.id, essence);
+        self
     }
 
-    pub fn register_form(&mut self, form: Form) {
+    pub fn register_form(mut self, form: Form) -> Self {
         self.form_lookup.insert(form.id, form);
+        self
     }
 
-    pub fn register_reaction(&mut self, reaction: Box<dyn Reaction>) {
+    pub fn register_reaction(mut self, reaction: Box<dyn Reaction>) -> Self {
         self.reactions.insert(reaction);
+        self
     }
 }
 
 impl Default for EssentiaBuilder {
     fn default() -> Self {
-        let mut builder = Self::new();
-        builder.register_reaction(Box::new(FormTransition {}));
-        builder.register_reaction(Box::new(Solution { optimal_dissolution_speed_percent: 20 }));
-        builder.register_reaction(Box::new(Precipitation {}));
+        let builder = Self::new();
         builder
+            .register_reaction(Box::new(FormTransition {}))
+            .register_reaction(Box::new(Solution { optimal_dissolution_speed_percent: 20 }))
+            .register_reaction(Box::new(Precipitation {}))
     }
 }

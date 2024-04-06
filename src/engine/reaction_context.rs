@@ -72,10 +72,10 @@ impl<'a> ReactionContext<'a> {
             .chain(dissolution_products.into_values())
             .filter(|p| {
                 match p {
-                    Product::Consume(_, _, qty) => qty.mol != 0,
-                    Product::Produce(_, _, qty) => qty.mol != 0,
-                    Product::Dissolve(_, _, _, qty) => qty.mol != 0,
-                    Product::Precipitate(_, _, _, qty) => qty.mol != 0,
+                    Product::Consume(_, _, qty) => qty.mmol != 0,
+                    Product::Produce(_, _, qty) => qty.mmol != 0,
+                    Product::Dissolve(_, _, _, qty) => qty.mmol != 0,
+                    Product::Precipitate(_, _, _, qty) => qty.mmol != 0,
                     _ => true
                 }
             })

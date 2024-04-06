@@ -27,7 +27,7 @@ impl Reaction for CryodustChill {
             .map(|c| c.get_quantity())
             .sum::<Quantity>();
 
-        if total_cryo.mol > 0 {
+        if total_cryo.mmol > 0 {
             let mut products = vec![
                 Product::Thermal(-self.chill_per_mol * total_cryo)
             ];

@@ -34,7 +34,7 @@ impl FormTransition {
         for (_, relevant_transitions) in transitions_by_thresold {
             let total_energy_for_transition = relevant_transitions
                 .iter()
-                .map(|(transition, substance)| transition.joules_per_mol * substance.quantity.mol)
+                .map(|(transition, substance)| transition.joules_per_mol * substance.quantity.mmol)
                 .sum::<Energy>();
 
             if total_energy_for_transition > remaining_energy {
@@ -84,7 +84,7 @@ impl FormTransition {
         for (_, relevant_transitions) in transitions_by_thresold {
             let total_energy_for_transition = relevant_transitions
                 .iter()
-                .map(|(transition, substance)| transition.joules_per_mol * substance.quantity.mol)
+                .map(|(transition, substance)| transition.joules_per_mol * substance.quantity.mmol)
                 .sum::<Energy>();
 
             if total_energy_for_transition < remaining_energy {

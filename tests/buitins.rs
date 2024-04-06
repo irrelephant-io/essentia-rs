@@ -165,8 +165,8 @@ fn test_water_crystalization_transitions() {
 #[test]
 fn test_solution_in_water() {
     let mut engine = setup();
-    let starting_vitae = Quantity::from(50);
-    add_water(&mut engine, Quantity::from(20));
+    let starting_vitae = Quantity::from(50000);
+    add_water(&mut engine, Quantity::from(20000));
     add_vitae(&mut engine, starting_vitae);
 
     engine.simulate(TimeSpan::default());

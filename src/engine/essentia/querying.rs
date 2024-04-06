@@ -1,4 +1,4 @@
-use crate::{physics::{PhaseGraph, Solubility}, EssenceId, Substance, SubstanceData};
+use crate::{abstractions::SubstanceId, physics::{PhaseGraph, Solubility}, EssenceId, Substance, SubstanceData};
 
 impl super::Essentia {
     pub fn iter_all(&self) -> impl Iterator<Item = &Substance> {
@@ -81,5 +81,9 @@ impl super::Essentia {
                 // Dissolved substances are not affected by transitions
                 None
             })
+    }
+
+    pub fn get_substance(&self, substance_id: SubstanceId) -> Option<&Substance> {
+        self.substances.get(&substance_id)
     }
 }

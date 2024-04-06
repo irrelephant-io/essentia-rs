@@ -4,23 +4,50 @@ use super::TimeSpan;
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Quantity {
-    pub mol: u32
+    pub mmol: u32
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Rate {
-    pub mol_per_tick: u32
+    pub mmol_per_tick: u32
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct PerMol {
+    pub mmol_per: u32
+}
+
+impl Default for PerMol {
+    fn default() -> Self {
+        Self { mmol_per: 1 }
+    }
+}
+
+impl Mul<Quantity> for PerMol {
+    type Output = Quantity;
+
+    fn mul(self, rhs: Quantity) -> Self::Output {
+        Self::Output::from(self.mmol_per * rhs.mmol)
+    }
+}
+
+impl Mul<PerMol> for Quantity {
+    type Output = Quantity;
+
+    fn mul(self, rhs: PerMol) -> Self::Output {
+        Self::Output::from(self.mmol * rhs.mmol_per)
+    }
 }
 
 impl Default for Rate {
     fn default() -> Self {
-        Self { mol_per_tick: 1 }
+        Self { mmol_per_tick: 1000 }
     }
 }
 
 impl From<u32> for Rate {
     fn from(value: u32) -> Self {
-        Rate { mol_per_tick: value }
+        Rate { mmol_per_tick: value }
     }
 }
 
@@ -28,15 +55,15 @@ impl Mul<TimeSpan> for Rate {
     type Output = Quantity;
 
     fn mul(self, rhs: TimeSpan) -> Self::Output {
-        Quantity { mol: self.mol_per_tick * rhs.ticks }
+        Quantity { mmol: self.mmol_per_tick * rhs.ticks }
     }
 }
 
-impl Mul<u8> for Quantity {
+impl Mul<u32> for Quantity {
     type Output = Quantity;
 
-    fn mul(self, rhs: u8) -> Self::Output {
-        Quantity { mol: self.mol * rhs as u32 }
+    fn mul(self, rhs: u32) -> Self::Output {
+        Quantity { mmol: self.mmol * rhs as u32 }
     }
 }
 
@@ -44,38 +71,48 @@ impl Div<u8> for Quantity {
     type Output = Quantity;
 
     fn div(self, rhs: u8) -> Self::Output {
-        Quantity { mol: self.mol / rhs as u32 }
+        Quantity { mmol: self.mmol / rhs as u32 }
     }
 }
 
 impl SubAssign for Quantity {
     fn sub_assign(&mut self, rhs: Self) {
-        self.mol -= rhs.mol;
+        self.mmol -= rhs.mmol;
     }
 }
 
 impl AddAssign for Quantity {
     fn add_assign(&mut self, rhs: Self) {
-        self.mol += rhs.mol;
+        self.mmol += rhs.mmol;
+    }
+}
+
+impl Div<Quantity> for Quantity {
+    type Output = PerMol;
+
+    fn div(self, rhs: Quantity) -> Self::Output {
+        Self::Output {
+            mmol_per: (self.mmol as f32 / rhs.mmol as f32) as u32
+        }
     }
 }
 
 
 impl Quantity {
     pub fn none() -> Self {
-        Quantity { mol: 0 }
+        Quantity { mmol: 0 }
     }
 }
 
 impl Default for Quantity {
     fn default() -> Self {
-        Quantity { mol: 1 }
+        Quantity { mmol: 1000 }
     }
 }
 
 impl From<u32> for Quantity {
     fn from(value: u32) -> Self {
-        Quantity { mol: value }
+        Quantity { mmol: value }
     }
 }
 
@@ -84,7 +121,7 @@ impl Add for Quantity {
 
     fn add(self, rhs: Self) -> Self::Output {
         Quantity {
-            mol: self.mol + rhs.mol
+            mmol: self.mmol + rhs.mmol
         }
     }
 }
@@ -94,14 +131,14 @@ impl Sub for Quantity {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Quantity {
-            mol: self.mol - rhs.mol
+            mmol: self.mmol - rhs.mmol
         }
     }
 }
 
 impl Sum for Quantity {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-        Quantity { mol: iter.map(|q| q.mol).sum() }
+        Quantity { mmol: iter.map(|q| q.mmol).sum() }
     }
 }
 
@@ -109,6 +146,14 @@ impl Mul<f32> for Quantity {
     type Output = Quantity;
 
     fn mul(self, rhs: f32) -> Self::Output {
-        Quantity { mol: (self.mol as f32 * rhs) as u32 }
+        Quantity { mmol: (self.mmol as f32 * rhs) as u32 }
+    }
+}
+
+impl Mul<Quantity> for f32 {
+    type Output = Quantity;
+
+    fn mul(self, rhs: Quantity) -> Self::Output {
+        Quantity { mmol: (self * rhs.mmol as f32) as u32 }
     }
 }

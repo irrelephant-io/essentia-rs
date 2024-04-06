@@ -249,7 +249,22 @@ impl<'a> SolutionSubstanceBuilder<'a> {
         self
     }
 
-    pub fn with_solute(&mut self, solute: Substance, quantity: Quantity) -> &mut Self {
+    pub fn with_form(mut self, form_id: FormId) -> Self {
+        self.form_id = Some(form_id);
+        self
+    }
+
+    pub fn with_essence(mut self, essence_id: EssenceId) -> Self {
+        self.essence_id = Some(essence_id);
+        self
+    }
+
+    pub fn with_quantity(mut self, quantity: Quantity) -> Self {
+        self.quantity = quantity;
+        self
+    }
+
+    pub fn with_solute(mut self, solute: Substance, quantity: Quantity) -> Self {
         if let Substance::Free(_, solute) = solute {
             self.solutes.push(SoluteData {
                 essence_id: solute.essence_id,

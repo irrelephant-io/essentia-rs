@@ -22,4 +22,3 @@ pub mod engine;
 
 mod utils;
 pub use utils::builder::Builder;
-pub use utils::either::Either;

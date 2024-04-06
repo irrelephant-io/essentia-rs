@@ -4,6 +4,7 @@ use crate::{abstractions::{Environment, Essence, Form, Substance, SubstanceId}, 
 
 pub struct Essentia {
     _private_ctor: (),
+    
     pub environment: Environment,
     pub heat_capacity: HeatCapacity,
     pub delta_time: TimeSpan,

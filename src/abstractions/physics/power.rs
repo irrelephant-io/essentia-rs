@@ -17,7 +17,7 @@ impl Mul<Quantity> for Power {
     type Output = Power;
 
     fn mul(self, rhs: Quantity) -> Self::Output {
-        Self::Output { watts: self.watts * rhs.mol as i32 }
+        Self::Output { watts: self.watts * rhs.mmol as i32 }
     }
 }
 

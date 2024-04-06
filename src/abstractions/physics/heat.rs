@@ -4,7 +4,7 @@ use super::{Energy, Quantity, Temperature};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct SpecificHeatCapacity {
-    pub joule_mol_per_degree: u32
+    pub joule_mmol_per_degree: u32
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
@@ -20,20 +20,20 @@ impl From<u32> for HeatCapacity {
 
 impl From<u32> for SpecificHeatCapacity {
     fn from(value: u32) -> Self {
-        Self { joule_mol_per_degree: value }
+        Self { joule_mmol_per_degree: value }
     }
 }
 
 impl Default for SpecificHeatCapacity {
     fn default() -> Self {
-        Self { joule_mol_per_degree: 1 }
+        Self { joule_mmol_per_degree: 1 }
     }
 }
 
 impl HeatCapacity {
     pub fn from_specific(quantity: Quantity, heat_capacity: SpecificHeatCapacity) -> Self {
         Self {
-            joule_per_degree: heat_capacity.joule_mol_per_degree * quantity.mol
+            joule_per_degree: heat_capacity.joule_mmol_per_degree * quantity.mmol
         }
     }
 

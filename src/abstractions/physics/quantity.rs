@@ -1,4 +1,4 @@
-use std::{iter::Sum, ops::{Add, AddAssign, Div, Mul, Sub, SubAssign}};
+use std::{fmt::Debug, iter::Sum, ops::{Add, AddAssign, Div, Mul, Sub, SubAssign}};
 
 use super::TimeSpan;
 
@@ -20,6 +20,12 @@ pub struct PerMol {
 impl Default for PerMol {
     fn default() -> Self {
         Self { mmol_per: 1 }
+    }
+}
+
+impl From<u32> for PerMol {
+    fn from(value: u32) -> Self {
+        Self { mmol_per: value }
     }
 }
 
@@ -63,15 +69,15 @@ impl Mul<u32> for Quantity {
     type Output = Quantity;
 
     fn mul(self, rhs: u32) -> Self::Output {
-        Quantity { mmol: self.mmol * rhs as u32 }
+        Quantity { mmol: self.mmol * rhs }
     }
 }
 
-impl Div<u8> for Quantity {
+impl Div<u32> for Quantity {
     type Output = Quantity;
 
-    fn div(self, rhs: u8) -> Self::Output {
-        Quantity { mmol: self.mmol / rhs as u32 }
+    fn div(self, rhs: u32) -> Self::Output {
+        Quantity { mmol: self.mmol / rhs }
     }
 }
 

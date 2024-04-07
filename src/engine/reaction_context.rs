@@ -82,7 +82,7 @@ impl<'a> ReactionContext<'a> {
             .collect::<Vec<_>>();
 
         if let Product::Thermal(p) = thermal_product {
-            if p.watts != 0 {
+            if p.mwatts != 0 {
                 products_vec.push(thermal_product);
             }
         }

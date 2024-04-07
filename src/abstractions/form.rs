@@ -19,7 +19,7 @@ impl From<FormId> for u16 {
     }
 }
 
-
+#[derive(Debug)]
 pub struct Form {
     pub id: FormId,
     pub name: String

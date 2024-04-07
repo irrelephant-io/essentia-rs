@@ -9,7 +9,8 @@ pub enum Essences {
     Heatstone = 3,
     Cryodust = 4,
     Inertia = 5,
-    Vitae = 6
+    Vitae = 6,
+    Saline = 7
 }
 
 impl Into<EssenceId> for Essences {
@@ -43,7 +44,6 @@ pub fn create_essences() -> Vec<Essence> {
                 builder
                     .is_solvent()
                     .when_in_form(Forms::Liquid.into())
-                    .with_saturation_limit(PerMol::default())
                     .build()
             })
             .build(),
@@ -51,6 +51,18 @@ pub fn create_essences() -> Vec<Essence> {
         EssenceBuilder::default()
             .with_name("Vitae")
             .with_custom_id(Essences::Vitae.into())
+            .with_solubility(|builder| {
+                builder
+                    .is_soluble()
+                    .when_in_form(Forms::Crystalline.into())
+                    .with_weight(PerMol::from(2))
+                    .build()
+            })
+            .build(),
+
+        EssenceBuilder::default()
+            .with_name("Saline")
+            .with_custom_id(Essences::Saline.into())
             .with_solubility(|builder| {
                 builder
                     .is_soluble()

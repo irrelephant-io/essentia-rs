@@ -12,7 +12,7 @@ pub use abstractions::{
     FormId,
     Substance,
     SubstanceBuilder,
-    SubstanceData,
+    SubstanceId,
     EssenceId,
     reaction,
     physics

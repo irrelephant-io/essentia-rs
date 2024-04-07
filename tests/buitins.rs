@@ -2,7 +2,7 @@ use data::reactions::CryodustChill;
 use data::{essence::Essences, reactions::PyroflaxHeat};
 use data::form::Forms;
 use essentia_rs::physics::Power;
-use essentia_rs::Substance;
+use essentia_rs::{Substance, SubstanceId};
 use essentia_rs::{engine::{Essentia, EssentiaBuilder}, physics::{TimeSpan, Quantity, Temperature, Rate}, SubstanceBuilder};
 
 pub mod data;
@@ -11,18 +11,18 @@ fn setup() -> Essentia {
     // Create engine WITH built-in reactions
     let mut builder = EssentiaBuilder::default();
     
-    data::essence::create_essences()
+    builder = data::essence::create_essences()
         .into_iter()
-        .for_each(|e| builder.register_essence(e));
+        .fold(builder, |it, e| it.register_essence(e));
 
-    data::form::create_forms()
+    builder = data::form::create_forms()
         .into_iter()
-        .for_each(|f| builder.register_form(f));
+        .fold(builder, |it, e| it.register_form(e));
 
-    builder.register_reaction(Box::new(PyroflaxHeat::from(42)));
-    builder.register_reaction(Box::new(CryodustChill::new(Power::from(40), Rate::from(0))));
-
-    builder.build()
+    builder
+        .register_reaction(Box::new(PyroflaxHeat::from(42)))
+        .register_reaction(Box::new(CryodustChill::new(Power::from(40), Rate::from(0))))
+        .build()
 }
 
 fn add_pyroflux(engine: &mut Essentia) {
@@ -47,15 +47,29 @@ fn add_cryodust(engine: &mut Essentia) {
     );
 }
 
-fn add_water(engine: &mut Essentia, quantity: Quantity) {
-    engine.add_substance(
-        SubstanceBuilder::new(&engine)
-            .is_normal()
-            .with_essence(Essences::Aqua.into())
-            .with_quantity(quantity)
-            .with_form(Forms::Liquid.into())
-            .build()
-    );
+fn add_water(engine: &mut Essentia, quantity: Quantity) -> SubstanceId {
+    let substance = SubstanceBuilder::new(&engine)
+        .is_normal()
+        .with_essence(Essences::Aqua.into())
+        .with_quantity(quantity)
+        .with_form(Forms::Liquid.into())
+        .build();
+    let id = substance.get_substance();
+    engine.add_substance(substance);
+    id
+}
+
+
+fn add_saline(engine: &mut Essentia, quantity: Quantity) -> SubstanceId {
+    let substance = SubstanceBuilder::new(&engine)
+        .is_normal()
+        .with_essence(Essences::Saline.into())
+        .with_quantity(quantity)
+        .with_form(Forms::Crystalline.into())
+        .build();
+    let id = substance.get_substance();
+    engine.add_substance(substance);
+    id
 }
 
 fn add_vitae(engine: &mut Essentia, quantity: Quantity) {
@@ -190,10 +204,9 @@ fn test_solution_in_water() {
                 Substance::Solution(_, data, solutes) => {
                     assert_eq!(data.essence_id, Essences::Aqua.into(), "There is just one solvent - water!");
                     assert_eq!(1, solutes.len(), "Only one solute should be present!");
-                    let vitae_solute = solutes.last().unwrap();
-                    assert_eq!(vitae_solute.essence_id, Essences::Vitae.into());
-                    assert!(vitae_solute.quantity < starting_vitae);
-                    Some(vitae_solute.quantity)
+                    let &vitae_solute_qty = solutes.get(&Essences::Vitae.into()).unwrap();
+                    assert!(vitae_solute_qty < starting_vitae);
+                    Some(vitae_solute_qty)
                 }
             }
         })
@@ -205,4 +218,153 @@ fn test_solution_in_water() {
         assert_trial_limit(&mut trial);
         engine.simulate(TimeSpan::default());
     }
+}
+
+#[test]
+fn test_dissolution_equilibrium() {
+    let mut engine = setup();
+
+    let saline_qty = Quantity::default();
+    let vitae_qty = Quantity::from(500);
+    // We add just enough vitae to completely saturate the water solution
+    add_water(&mut engine, Default::default());
+    add_vitae(&mut engine, vitae_qty);
+
+    let mut trial: u32 = 0;
+    while engine.iter_all().count() != 1 {
+        assert_trial_limit(&mut trial);
+        engine.simulate(Default::default());
+        let (water, _) = engine.iter_solvents().last().unwrap();
+        if let Substance::Solution(_, _, solutes) = water {
+            assert_eq!(solutes.len(), 1);
+        }
+    }
+    trial = 0;
+
+    println!("Dissolved all of vitae after {} trials", trial);
+    let (water, solubility) = engine.iter_solvents().last().unwrap();
+
+    let saturation = solubility.get_saturation_percent(&engine, water);
+    println!("Final saturation is {}", saturation);
+
+    // Add some saline.
+    add_saline(&mut engine, saline_qty);
+    engine.simulate(Default::default());
+
+    let (water, _) = engine.iter_solvents().last().unwrap();
+    if let Substance::Solution(_, _, solutes) = water {
+        assert_eq!(solutes.len(), 2);
+    }
+
+    engine.simulate(Default::default());
+    // Simulate until equilibrium is reached
+    while !engine.is_in_equilibrium {
+        assert_trial_limit(&mut trial);
+        engine.simulate(Default::default());
+    }
+    println!("Reached equilibrium after {} trials", trial);
+
+    // At this point there should be three substances:
+    // - Solution of water + saline + vitae, saturated
+    // - Free saline - approxomately 2/3 of added quantity
+    // - Free vitae - approximately 1/3 of added quantity
+    // Also total amount of reagents in the system should be the same as added.
+    let mut vitae_total = Quantity::none();
+    let mut saline_total = Quantity::none();
+    engine
+        .iter_all()
+        .for_each(|substance| {
+            match substance {
+                Substance::Free(_, free_vitae) if free_vitae.essence_id == Essences::Vitae.into() => {
+                    assert!(Quantity::from(245) <= free_vitae.quantity);
+                    assert!(free_vitae.quantity <= Quantity::from(255));
+                    vitae_total += free_vitae.quantity;
+                }
+                Substance::Free(_, free_saline) if free_saline.essence_id == Essences::Saline.into() => {
+                    assert!(Quantity::from(490) <= free_saline.quantity);
+                    assert!(free_saline.quantity <= Quantity::from(510));
+                    saline_total += free_saline.quantity;
+                },
+                Substance::Solution(_, solution, solutes) => {
+                    let solubility = engine.get_essence(solution.essence_id).unwrap().solubility.unwrap();
+                    assert_eq!(
+                        solubility.get_saturation_percent(&engine, substance),
+                        1.0,
+                        "Solution should be saturated"
+                    );
+                    solutes
+                        .iter()
+                        .for_each(|(&solute_essence, &solute_qty)| {
+                            if solute_essence == Essences::Vitae.into() {
+                                vitae_total += solute_qty;
+                            } else if solute_essence == Essences::Saline.into() {
+                                saline_total += solute_qty;
+                            } else {
+                                panic!("Unexpected solute found in solution!")
+                            }
+                        })
+                },
+                _ => { panic!("Alchemy happened. Unexpected things found in the flask!") }
+            }
+        });
+        assert_eq!(vitae_total, vitae_qty);
+        assert_eq!(saline_total, saline_qty);
+}
+
+#[test]
+fn saturated_solution_precipitates_when_solvent_quantity_decreases() {
+    let mut engine = setup();
+
+    add_water(&mut engine, Quantity::default());
+    add_saline(&mut engine, Quantity::from(1000));
+
+    engine.simulate(Default::default());
+    let mut trial = 0;
+    // Let all of the salt dissolve
+    while engine.iter_solutes().count() != 0 {
+        assert_trial_limit(&mut trial);
+        engine.simulate(Default::default());
+    }
+
+    // Add pyroflux and let the water start heating up and evaporating
+    trial = 0;
+    add_pyroflux(&mut engine);
+    while !engine.iter_all().any(|p| p.get_form() == Forms::Gas.into()) {
+        assert_trial_limit(&mut trial);
+        engine.simulate(Default::default());
+    }
+
+    // Wait until all of the water has evaporated.
+    trial = 0;
+    while engine.iter_all().any(|p| p.get_form() == Forms::Liquid.into()) {
+        assert_trial_limit(&mut trial);
+        engine.simulate(Default::default());
+    }
+
+    // Check that we are at water boiling point
+    assert!(engine.environment.temperature >= Temperature::from(100));
+
+    // Assert that the following is true:
+    // There are 3 free substances now since all of the water has evaporated:
+    // - free salt (default amount)
+    // - free steam (default amount)
+    // - Some pyroflux (we don't care about)
+    engine.iter_all().for_each(|substance| {
+        if let Substance::Free(_, data) = substance {
+            if data.essence_id == Essences::Aqua.into() {
+                if data.form_id != Forms::Gas.into() {
+                    panic!("Found non-steam water in the flask!")
+                }
+                assert_eq!(data.quantity, Quantity::default());
+            }
+            if data.essence_id == Essences::Saline.into() {
+                if data.form_id != Forms::Crystalline.into() {
+                    panic!("Found non-crystalline salt in the flask!")
+                }
+                assert_eq!(data.quantity, Quantity::default());
+            }
+        } else {
+            panic!("There should be no solutions in here anymore!")
+        }
+    });
 }

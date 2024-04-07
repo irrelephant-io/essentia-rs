@@ -4,12 +4,12 @@ use super::{energy::Energy, Quantity, TimeSpan};
 
 #[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub struct Power {
-    pub watts: i32
+    pub mwatts: i32
 }
 
 impl From<i32> for Power {
     fn from(value: i32) -> Self {
-        Power { watts: value }
+        Power { mwatts: value }
     }
 }
 
@@ -17,7 +17,7 @@ impl Mul<Quantity> for Power {
     type Output = Power;
 
     fn mul(self, rhs: Quantity) -> Self::Output {
-        Self::Output { watts: self.watts * rhs.mmol as i32 }
+        Self::Output { mwatts: self.mwatts * rhs.mmol as i32 }
     }
 }
 
@@ -26,7 +26,7 @@ impl Add for Power {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self {
-            watts: self.watts + rhs.watts
+            mwatts: self.mwatts + rhs.mwatts
         }
     }
 }
@@ -36,7 +36,7 @@ impl Sub for Power {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
-            watts: self.watts - rhs.watts
+            mwatts: self.mwatts - rhs.mwatts
         }
     }
 }
@@ -45,7 +45,7 @@ impl Neg for Power {
     type Output = Power;
 
     fn neg(self) -> Self::Output {
-        Power { watts: -self.watts }
+        Power { mwatts: -self.mwatts }
     }
 }
 
@@ -53,6 +53,6 @@ impl Mul<TimeSpan> for Power {
     type Output = Energy;
 
     fn mul(self, rhs: TimeSpan) -> Self::Output {
-        Energy { joules: self.watts * rhs.ticks as i32 }
+        Energy { joules: self.mwatts * rhs.ticks as i32 }
     }
 }

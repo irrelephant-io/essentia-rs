@@ -1,4 +1,4 @@
-use crate::{Builder, FormId, Substance};
+use crate::{engine::Essentia, Builder, FormId, Substance};
 
 use super::{quantity::PerMol, Quantity};
 
@@ -18,15 +18,24 @@ impl Solubility {
         }
     }
 
-    pub fn get_saturation_percent(&self, solvent: &Substance) -> f32 {
+    pub fn get_saturation_percent(&self, engine: &Essentia, solvent: &Substance) -> f32 {
         match solvent {
             Substance::Free(_, _) => 0.0,
             Substance::Solution(_, data, solutes) => {
-                
-
                 solutes
                     .iter()
-                    .map(|s| s.quantity).sum::<Quantity>().mmol as f32
+                    .map(|(&essence_id, &quantity)| {
+                        let solute_essence = engine
+                            .get_essence(essence_id)
+                            .expect("Unknown essence in solution!");
+
+                        if let Some(Solubility::Solute(_, weight)) = solute_essence.solubility {
+                            weight * quantity
+                        } else {
+                            panic!("Non-solute found in solution!")
+                        }
+                    })
+                    .sum::<Quantity>().mmol as f32
                 / data.quantity.mmol as f32
             }
         }

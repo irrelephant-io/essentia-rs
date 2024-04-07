@@ -30,9 +30,13 @@ impl super::Essentia {
         self.delta_time = delta_time;
         self.heat_capacity = get_heat_capacity(&self);
 
-        self
+        let mut products = self
             .run_reactions()
-            .pending_products
+            .pending_products;
+
+        self.is_in_equilibrium = products.len() == 0;
+
+        products
             .drain(..)
             .for_each(|p| {
                 match p {
@@ -49,7 +53,9 @@ impl super::Essentia {
                     Product::Dissolve(essence_id, form_id, substance_id, quantity) => {
                         self.dissolve_substance(essence_id, form_id, substance_id, quantity);
                     }
-                    _ => todo!("This reaction type is not supported!")
+                    Product::Precipitate(essence_id, form_id, substance_id, quantity) => {
+                        self.precipitate_substance(essence_id, form_id, substance_id, quantity);
+                    }
                 }
             });
 
@@ -70,7 +76,8 @@ impl super::Essentia {
             let mut remainders = vec![];
             for (_, solute) in solutes {
                 let (solute, remainder) = solute.divide(qty_to_dissolve);
-                solution_builder = solution_builder.with_solute(solute, qty_to_dissolve);
+                let actual_qty_to_dissolve = solute.get_quantity();
+                solution_builder = solution_builder.with_solute(solute, actual_qty_to_dissolve);
                 if let Some(remainder) = remainder {
                     remainders.push(remainder);
                 }
@@ -80,6 +87,37 @@ impl super::Essentia {
             for remainder in remainders {
                 self.add_substance(remainder);
             }
+        }
+    }
+
+    fn precipitate_substance(&mut self, essence_id: EssenceId, form_id: FormId, substance_id: SubstanceId, quantity: Quantity) {
+        let solution = self.substances
+            .get_mut(&substance_id)
+            .expect("Couldn't find solution to precipitate from!");
+
+        if let Substance::Solution(_, _, solutes) = solution {
+            let mut quantity_to_precipitate = Quantity::none();
+            solutes
+                .retain(|&solute_essence_id, solute_quantity| {
+                    if solute_essence_id == essence_id {
+                        if *solute_quantity > quantity {
+                            *solute_quantity -= quantity;
+                            quantity_to_precipitate = quantity;
+                        } else {
+                            quantity_to_precipitate = *solute_quantity;
+                            return false
+                        }
+                    }
+
+                    return true;
+                });
+            
+            if quantity_to_precipitate > Quantity::none() {
+                self.produce_substance(essence_id, form_id, quantity_to_precipitate);
+            }
+
+        } else {
+            panic!("Substance to precipitate from is not a solution!");
         }
     }
 

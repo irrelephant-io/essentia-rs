@@ -5,7 +5,7 @@ use essentia_rs::{
 use crate::data::essence::Essences;
 
 pub struct CryodustChill {
-    chill_per_mol: Power,
+    chill_per_mmol: Power,
     consumption_rate: Rate
 }
 
@@ -29,7 +29,7 @@ impl Reaction for CryodustChill {
 
         if total_cryo.mmol > 0 {
             let mut products = vec![
-                Product::Thermal(-self.chill_per_mol * total_cryo)
+                Product::Thermal(-self.chill_per_mmol * total_cryo)
             ];
 
             all_cryo
@@ -52,12 +52,12 @@ impl Reaction for CryodustChill {
 }
 impl Default for CryodustChill {
     fn default() -> Self {
-        CryodustChill { chill_per_mol: Power::from(2), consumption_rate: Rate::default() }
+        CryodustChill { chill_per_mmol: Power::from(2), consumption_rate: Rate::default() }
     }
 }
 
 impl CryodustChill {
     pub fn new(power: Power, consumption_rate: Rate) -> Self {
-        CryodustChill { chill_per_mol: power, consumption_rate }
+        CryodustChill { chill_per_mmol: power, consumption_rate }
     }
 }

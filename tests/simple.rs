@@ -2,7 +2,7 @@ use data::reactions::{PyroflaxHeat, CryodustChill};
 
 use essentia_rs::SubstanceBuilder;
 use essentia_rs::engine::{Essentia, EssentiaBuilder};
-use essentia_rs::physics::{Quantity, TimeSpan};
+use essentia_rs::physics::{Power, Quantity, Rate, TimeSpan};
 
 use crate::data::essence::Essences;
 use crate::data::form::Forms;
@@ -13,18 +13,18 @@ fn setup() -> Essentia {
     // Create engine without built-in reactions
     let mut builder = EssentiaBuilder::new();
     
-    data::essence::create_essences()
+    builder = data::essence::create_essences()
         .into_iter()
-        .for_each(|e| builder.register_essence(e));
+        .fold(builder, |it, e| it.register_essence(e));
 
-    data::form::create_forms()
+    builder = data::form::create_forms()
         .into_iter()
-        .for_each(|f| builder.register_form(f));
+        .fold(builder, |it, e| it.register_form(e));
 
-    builder.register_reaction(Box::new(PyroflaxHeat::default()));
-    builder.register_reaction(Box::new(CryodustChill::default()));
-
-    builder.build()
+    builder
+        .register_reaction(Box::new(PyroflaxHeat::from(1)))
+        .register_reaction(Box::new(CryodustChill::new(Power::from(1), Rate::from(1000))))
+        .build()
 }
 
 fn add_pyroflux(engine: &mut Essentia) {
@@ -44,7 +44,7 @@ fn add_cryodust(engine: &mut Essentia) {
             .is_normal()
             .with_essence(Essences::Cryodust.into())
             .with_form(Forms::Salt.into())
-            .with_quantity(Quantity::from(10))
+            .with_quantity(Quantity::from(10_000))
             .build()
     );
 }
@@ -66,7 +66,7 @@ fn add_heatstone(engine: &mut Essentia) {
             .is_normal()
             .with_essence(Essences::Heatstone.into())
             .with_form(Forms::Salt.into())
-            .with_quantity(Quantity::from(10))
+            .with_quantity(Quantity::from(10_000))
             .build()
     );
 }
@@ -163,12 +163,12 @@ fn cryo_is_consumed_over_time() {
     let temp_sample_pre = engine.environment.temperature;
     let cryo_pre = get_quantity_of(&engine, Essences::Cryodust);
     println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_pre, cryo_pre);
-    engine.simulate(TimeSpan::from(100)); 
+    engine.simulate(TimeSpan::from(10)); 
     let cryo_1 = get_quantity_of(&engine, Essences::Cryodust);
     let temp_sample_1 = engine.environment.temperature;
     println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_1, cryo_1);
     // By this time we expect no change in the environment since all of the cryo was consumed by the reaction
-    engine.simulate(TimeSpan::from(100));
+    engine.simulate(TimeSpan::from(3));
     let cryo_2 = get_quantity_of(&engine, Essences::Cryodust);
     let temp_sample_2 = engine.environment.temperature;
     println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_2, cryo_2);

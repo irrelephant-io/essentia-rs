@@ -1,4 +1,4 @@
-use crate::{abstractions::SubstanceId, physics::{PhaseGraph, Solubility}, EssenceId, Substance, SubstanceData};
+use crate::{abstractions::SubstanceId, physics::{PhaseGraph, Solubility}, EssenceId, Substance};
 
 impl super::Essentia {
     pub fn iter_all(&self) -> impl Iterator<Item = &Substance> {
@@ -67,19 +67,17 @@ impl super::Essentia {
             .map(|x| x.solubility)?
     }
 
-    pub fn get_with_phase_graphs(&self) -> impl Iterator<Item = (&SubstanceData, &PhaseGraph)> {
+    pub fn get_with_phase_graphs(&self) -> impl Iterator<Item = (&Substance, &PhaseGraph)> {
         self.substances
             .values()
             .filter_map(|substance| {
-                if let Substance::Free(_, sd) = substance {
-                    let essence = self.get_essence(sd.essence_id).unwrap();
-                    if let Some(phase_graph)  = &essence.phase_graph {
-                        return Some((sd, phase_graph));
-                    }
-                }
+                let essence = self
+                    .get_essence(substance.get_essence())
+                    .expect("Couldn't find essence when searching for phase graph!");
 
-                // Dissolved substances are not affected by transitions
-                None
+                essence.phase_graph
+                    .as_ref()
+                    .map(|graph| (substance, graph))
             })
     }
 

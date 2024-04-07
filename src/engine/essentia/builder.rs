@@ -9,7 +9,7 @@ use crate::{
     engine::builtin_reactions::{
         FormTransition,
         Precipitation,
-        Solution
+        Dissolution
     },
     physics::{HeatCapacity, TimeSpan},
     Environment,
@@ -38,6 +38,7 @@ impl EssentiaBuilder {
     pub fn build(self) -> Essentia {
         Essentia {
             _private_ctor: (),
+            is_in_equilibrium: true,
             heat_capacity: HeatCapacity::from(0),
             environment: self.starting_environment.unwrap_or(Environment::new()),
             delta_time: TimeSpan::from(0),
@@ -69,7 +70,7 @@ impl Default for EssentiaBuilder {
         let builder = Self::new();
         builder
             .register_reaction(Box::new(FormTransition {}))
-            .register_reaction(Box::new(Solution { optimal_dissolution_speed_percent: 20 }))
-            .register_reaction(Box::new(Precipitation {}))
+            .register_reaction(Box::new(Dissolution::default()))
+            .register_reaction(Box::new(Precipitation::default()))
     }
 }

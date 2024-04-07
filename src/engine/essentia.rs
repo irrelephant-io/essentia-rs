@@ -8,6 +8,7 @@ pub struct Essentia {
     pub environment: Environment,
     pub heat_capacity: HeatCapacity,
     pub delta_time: TimeSpan,
+    pub is_in_equilibrium: bool,
 
     substances: HashMap::<SubstanceId, Substance>,
     essence_lookup: HashMap::<EssenceId, Essence>,

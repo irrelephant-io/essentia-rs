@@ -4,7 +4,7 @@ use crate::data::essence::Essences;
 
 
 pub struct PyroflaxHeat {
-    power_per_mol: Power
+    power_per_mmol: Power
 }
 
 impl Reaction for PyroflaxHeat {
@@ -24,7 +24,7 @@ impl Reaction for PyroflaxHeat {
             .sum::<Quantity>();
 
         if total_pyro.mmol > 0 {
-            vec![ Product::Thermal(self.power_per_mol * total_pyro) ]
+            vec![ Product::Thermal(self.power_per_mmol * total_pyro) ]
         } else {
             vec![]
         }
@@ -35,12 +35,12 @@ impl Reaction for PyroflaxHeat {
 
 impl PyroflaxHeat {
     pub fn default() -> Self {
-        PyroflaxHeat { power_per_mol: Power::from(1) }
+        PyroflaxHeat { power_per_mmol: Power::from(1) }
     }
 }
 
 impl From<u16> for PyroflaxHeat {
     fn from(value: u16) -> Self {
-        PyroflaxHeat { power_per_mol: Power::from(value as i32) }
+        PyroflaxHeat { power_per_mmol: Power::from(value as i32) }
     }
 }

@@ -1,4 +1,4 @@
-use std::sync::atomic::{AtomicU16, Ordering};
+use std::{collections::HashMap, sync::atomic::{AtomicU16, Ordering}};
 
 use crate::{abstractions::physics::Quantity, engine::Essentia, physics::Solubility, EssenceId, FormId};
 
@@ -26,15 +26,10 @@ pub struct SubstanceData {
     pub quantity: Quantity
 }
 
-#[derive(Clone, Copy, Debug)]
-pub struct SoluteData {
-    pub essence_id: EssenceId,
-    pub quantity: Quantity
-}
-
+#[derive(Debug)]
 pub enum Substance {
     Free(SubstanceId, SubstanceData),
-    Solution(SubstanceId, SubstanceData, Vec<SoluteData>)
+    Solution(SubstanceId, SubstanceData, HashMap::<EssenceId, Quantity>)
 }
 
 impl Substance {
@@ -95,7 +90,7 @@ pub struct SolutionSubstanceBuilder<'a> {
     form_id: Option<FormId>,
     quantity: Quantity,
 
-    solutes: Vec<SoluteData>
+    solutes: HashMap<EssenceId, Quantity>
 }
 
 impl Substance {
@@ -224,7 +219,7 @@ impl<'a> SolutionSubstanceBuilder<'a> {
             essence_id: None,
             form_id: None,
             quantity: Quantity::default(),
-            solutes: vec![]
+            solutes: HashMap::new()
         }
     }
 
@@ -235,7 +230,7 @@ impl<'a> SolutionSubstanceBuilder<'a> {
                 self.essence_id = Some(base.essence_id);
                 self.form_id = Some(base.form_id);
                 self.quantity = base.quantity;
-                self.solutes = vec![];
+                self.solutes = HashMap::new();
             },
             Substance::Solution(substance_id, base, existing_solutes) => {
                 self.substance_id = Some(substance_id);
@@ -266,10 +261,10 @@ impl<'a> SolutionSubstanceBuilder<'a> {
 
     pub fn with_solute(mut self, solute: Substance, quantity: Quantity) -> Self {
         if let Substance::Free(_, solute) = solute {
-            self.solutes.push(SoluteData {
-                essence_id: solute.essence_id,
-                quantity
-            });
+            self.solutes
+                .entry(solute.essence_id)
+                .and_modify(|qty| *qty += quantity)
+                .or_insert(quantity);
         }
         
         self

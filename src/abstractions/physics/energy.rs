@@ -67,6 +67,6 @@ impl Div<TimeSpan> for Energy {
     type Output = Power;
     
     fn div(self, rhs: TimeSpan) -> Self::Output {
-        Self::Output { watts: self.joules / rhs.ticks as i32 }
+        Self::Output { mwatts: self.joules / rhs.ticks as i32 }
     }
 }

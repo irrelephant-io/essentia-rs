@@ -26,11 +26,11 @@ jobs:
           CURRENT_VER=$(cat Cargo.toml                                    \
             | grep 'version'                                              \
             | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
-          echo "Detected current package version of $CURRENT_VERSION"
+          echo "Detected current package version of $CURRENT_VER"
 
-          PUBLISHED_VER=$(cargo search essentia-rs --color=never          \
+          PUBLISHED_VER=$(cargo search essentia-rs --quiet --color=never  \
             | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
-          echo "Detected current published version of $CURRENT_VERSION"
+          echo "Detected current published version of $PUBLISHED_VER"
 
           if [ $CURRENT_VER = $PUBLISHED_VER ]; then
             echo "Current version is equal to published: should_publish=false"

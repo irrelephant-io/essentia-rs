@@ -11,13 +11,49 @@ jobs:
     name: Publish to crates.io
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        name: "Checkout src"
+
       - uses: actions-rs/toolchain@v1
+        name: "Setup toolchain"
         with:
           profile: minimal
           toolchain: nightly
           override: true
-      - uses: actions-rs/cargo@v1
+
+      - name: "Check if should publish"
+        run: |
+          CURRENT_VER=$(cat Cargo.toml                                    \
+            | grep 'version'                                              \
+            | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
+          echo "Detected current package version of $CURRENT_VER"
+
+          PUBLISHED_VER=$(cargo search essentia-rs --quiet --color=never  \
+            | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
+          echo "Detected current published version of $PUBLISHED_VER"
+
+          if [ $CURRENT_VER = $PUBLISHED_VER ]; then
+            echo "Current version is equal to published: should_publish=false"
+            exit 0
+          fi
+
+          SMALLER_VER=$(echo -e "$PUBLISHED_VER\n$CURRENT_VER"             \
+            | sort -V                                                      \
+            | head -1)
+
+          echo "Smaller version is: $SMALLER_VER"
+
+          if [ $SMALLER_VER = $PUBLISHED_VER ]; then
+            echo "Published version is older: should_publish=true"
+            echo "should_publish=true" >> $GITHUB_ENV
+          else
+            echo "Published version is newer: should_publish=false"
+            echo "should_publish=false" >> $GITHUB_ENV
+          fi
+
+      - name: "Publish"
+        uses: actions-rs/cargo@v1
+        if: env.should_publish == 'true'
         with:
           command: publish
           args: --token ${{ secrets.CRATES_IO_TOKEN }}

@@ -15,7 +15,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          components: rustfmr, clippy
+          components: rustfmt, clippy
           toolchain: nightly
 
       - name: Cargo Test

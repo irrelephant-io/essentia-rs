@@ -40,12 +40,13 @@ jobs:
           SMALLER_VER=$(echo "$PUBLISHED_VER\n$EXISTING_VER"              \
             | sort -V                                                     \
             | head -1)
+          echo "Smaller version is: $SMALLER_VER"
 
           if [ $SMALLER_VER = $PUBLISHED_VER ]; then
             echo "Published version is older: should_publish=true"
             echo "should_publish=true" >> $GITHUB_ENV
           else
-            echo "Published version is older: should_publish=false"
+            echo "Published version is newer: should_publish=false"
             echo "should_publish=false" >> $GITHUB_ENV
           fi
 

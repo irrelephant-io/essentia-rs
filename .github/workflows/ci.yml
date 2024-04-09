@@ -9,12 +9,4 @@ on:
 jobs:
   validate:
     name: "Check Build"
-    uses: ./.github/workflows/actions/validate.yml
-
-  publish:
-    name: "Publish Crate"
-    permissions:
-      contents: read
-    uses: ./.github/workflows/actions/publish.yml
-    secrets:
-      CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+    uses: ./.github/workflows/validate.yml

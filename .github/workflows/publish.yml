@@ -12,14 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        name: "Checkout src"
 
       - uses: actions-rs/toolchain@v1
+        name: "Setup toolchain"
         with:
           profile: minimal
           toolchain: nightly
           override: true
 
-      - run: |
+      - name: "Check if should publish"
+        run: |
           CURRENT_VER=$(cat Cargo.toml                                    \
             | grep 'version'                                              \
             | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
@@ -37,7 +40,8 @@ jobs:
             echo "should_publish=false" >> $GITHUB_ENV
           fi
 
-      - uses: actions-rs/cargo@v1
+      - name: "Publish"
+        uses: actions-rs/cargo@v1
         if: env.should_publish == true
         with:
           command: publish

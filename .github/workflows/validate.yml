@@ -9,10 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    needs: validate_release_version
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install build dependencies
-        run: |
-          cargo test -- --nocapture
+      - name: Cargo Test
+        run: cargo test -- --nocapture

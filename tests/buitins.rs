@@ -31,7 +31,7 @@ fn add_pyroflux(engine: &mut Essentia) {
             .is_normal()
             .with_essence(Essences::Pyroflux.into())
             .with_form(Forms::Salt.into())
-            .with_quantity(Quantity::default())
+            .with_quantity(Quantity::default() * 10)
             .build()
     );
 }

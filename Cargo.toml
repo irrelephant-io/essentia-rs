@@ -7,7 +7,7 @@ homepage = "https://essentia.irrelephant.io"
 repository = "https://github.com/irrelephant-io/essentia-rs"
 version = "0.1.0"
 edition = "2024"
-licence = "GPL-3.0-or-later"
+licence = "GPL-3.0"
 keywords = [ "gamedev", "engine" ]
 
 [dependencies]

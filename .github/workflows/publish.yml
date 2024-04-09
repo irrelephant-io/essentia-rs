@@ -51,7 +51,7 @@ jobs:
 
       - name: "Publish"
         uses: actions-rs/cargo@v1
-        if: env.should_publish == true
+        if: env.should_publish == 'true'
         with:
           command: publish
           args: --token ${{ secrets.CRATES_IO_TOKEN }}

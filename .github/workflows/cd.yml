@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - feature/automate-publish
+      - "feature/automate-publish"
 
 jobs:
   validate:

@@ -1,12 +1,7 @@
 name: Validate
 
 on:
-  pull_request:
-    paths-ignore:
-      - "README.md"
-      - "doc/**"
-  push:
-    branches: master
+  workflow_call:
 
 jobs:
   check:

@@ -19,4 +19,6 @@ jobs:
           toolchain: nightly
 
       - name: Cargo Test
-        run: cargo test -- --nocapture
+        uses: actions-rs/cargo@v1
+        with:
+          command: test

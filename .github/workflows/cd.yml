@@ -1,9 +1,7 @@
 name: "CD"
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -12,8 +10,7 @@ jobs:
 
   publish:
     name: "Publish Crate"
-    permissions:
-      contents: read
+    needs: validate
     uses: ./.github/workflows/publish.yml
     secrets:
       CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}

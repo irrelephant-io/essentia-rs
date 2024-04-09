@@ -6,7 +6,7 @@ use crate::{
             get_heat_capacity, Quantity, TimeSpan
         },
         reaction::Product, SubstanceId
-    }, engine::ReactionContext, EssenceId, FormId, Substance, SubstanceBuilder
+    }, engine::ReactionContext, physics::Solubility, EssenceId, FormId, Substance, SubstanceBuilder
 };
 
 impl super::Essentia {
@@ -92,10 +92,13 @@ impl super::Essentia {
 
     fn precipitate_substance(&mut self, essence_id: EssenceId, form_id: FormId, substance_id: SubstanceId, quantity: Quantity) {
         let solution = self.substances
-            .get_mut(&substance_id)
-            .expect("Couldn't find solution to precipitate from!");
+            .get_mut(&substance_id);
 
-        if let Substance::Solution(_, _, solutes) = solution {
+        if solution.is_none() {
+            return;
+        }
+
+        if let Some(Substance::Solution(_, _, solutes)) = solution {
             let mut quantity_to_precipitate = Quantity::none();
             solutes
                 .retain(|&solute_essence_id, solute_quantity| {
@@ -167,6 +170,7 @@ impl super::Essentia {
     
     fn consume_substance(&mut self, essence_id: EssenceId, form_id: FormId, quantity: Quantity) {
         let mut quantity_left = quantity;
+        let mut solutes_to_fall_out = vec![];
         self.substances.retain(|_, substance| {
             if quantity_left == Quantity::none() {
                 return true;
@@ -185,7 +189,7 @@ impl super::Essentia {
                     }
                     return true;
                 },
-                Substance::Solution(_, data, _) => {
+                Substance::Solution(_, data, solutes) => {
                     if data.essence_id == essence_id && data.form_id == form_id {
                         if data.quantity > quantity_left {
                             data.quantity -= quantity_left;
@@ -193,6 +197,9 @@ impl super::Essentia {
                             return true;
                         } else {
                             quantity_left -= data.quantity;
+                            for solute in solutes.clone() {
+                                solutes_to_fall_out.push(solute.clone());
+                            }
                             return false;
                         }
                     }
@@ -201,5 +208,16 @@ impl super::Essentia {
             }
         });
 
+        for (essence_id, quantity) in solutes_to_fall_out {
+            let solute_essence = self
+                .get_essence(essence_id)
+                .expect("Couldn't find solute essence when precipitating the remains");
+            
+            if let Solubility::Solute(form_id, _) = solute_essence.solubility.expect("Solute is insoluble. Weird.") {
+                self.produce_substance(essence_id, form_id, quantity);
+            } else {
+                panic!("Non-solute was dissolved into a solution.");
+            }
+        }
     }
 }

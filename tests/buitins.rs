@@ -99,9 +99,9 @@ fn get_of_essense(engine: &Essentia, essence: Essences) -> impl Iterator<Item = 
         })
 }
 
-const TRIAL_LIMIT: u32 = 1000;
-const WATER_BOIL_TEMP: Temperature = Temperature { degrees: 100 };
-const WATER_CRYSTALLIZATION_TEMP: Temperature = Temperature { degrees: 0 };
+const TRIAL_LIMIT: u32 = 100_000;
+const WATER_BOIL_TEMP: Temperature = Temperature { mkelvin: 373_000 };
+const WATER_CRYSTALLIZATION_TEMP: Temperature = Temperature { mkelvin: 273_000 };
 
 fn assert_trial_limit(trial: &mut u32) {
     *trial += 1;
@@ -113,7 +113,7 @@ fn assert_trial_limit(trial: &mut u32) {
 #[test]
 fn test_water_evaporation_transitions() {
     let mut engine = setup();
-    add_water(&mut engine, Quantity::from(10));
+    add_water(&mut engine, Quantity::from(10_000));
     add_pyroflux(&mut engine);
 
 

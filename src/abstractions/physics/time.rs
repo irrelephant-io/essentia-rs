@@ -2,12 +2,12 @@ use std::ops::{Add, AddAssign};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Time {
-    pub ticks: u32
+    pub ticks: u32,
 }
 
 #[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct TimeSpan {
-    pub ticks: u32
+    pub ticks: u32,
 }
 
 impl Default for TimeSpan {
@@ -28,13 +28,12 @@ impl Time {
     }
 }
 
-
 impl Add<TimeSpan> for Time {
     type Output = Self;
 
     fn add(self, rhs: TimeSpan) -> Self::Output {
         Time {
-            ticks: self.ticks + rhs.ticks as u32
+            ticks: self.ticks + rhs.ticks as u32,
         }
     }
 }

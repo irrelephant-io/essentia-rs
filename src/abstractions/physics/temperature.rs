@@ -2,7 +2,7 @@ use std::ops::{Add, AddAssign, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Hash)]
 pub struct Temperature {
-    pub mkelvin: i32
+    pub mkelvin: i32,
 }
 
 impl Default for Temperature {
@@ -22,7 +22,7 @@ impl Add for Temperature {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self {
-            mkelvin: self.mkelvin + rhs.mkelvin
+            mkelvin: self.mkelvin + rhs.mkelvin,
         }
     }
 }
@@ -38,7 +38,7 @@ impl Sub for Temperature {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
-            mkelvin: self.mkelvin - rhs.mkelvin
+            mkelvin: self.mkelvin - rhs.mkelvin,
         }
     }
 }

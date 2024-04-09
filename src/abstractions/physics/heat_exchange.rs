@@ -11,8 +11,6 @@ fn get_substance_heat_capacity(substance: &Substance, engine: &Essentia) -> Heat
 pub fn get_heat_capacity(engine: &Essentia) -> HeatCapacity {
     engine
         .iter_all()
-        .map(|substance| {
-            get_substance_heat_capacity(substance, engine)
-        })
+        .map(|substance| get_substance_heat_capacity(substance, engine))
         .sum::<HeatCapacity>()
 }

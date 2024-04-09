@@ -1,10 +1,15 @@
-use std::{collections::HashMap, sync::atomic::{AtomicU16, Ordering}};
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicU16, Ordering},
+};
 
-use crate::{abstractions::physics::Quantity, engine::Essentia, physics::Solubility, EssenceId, FormId};
+use crate::{
+    abstractions::physics::Quantity, engine::Essentia, physics::Solubility, EssenceId, FormId,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SubstanceId {
-    id: u16
+    id: u16,
 }
 
 impl From<u16> for SubstanceId {
@@ -23,20 +28,20 @@ impl From<SubstanceId> for u16 {
 pub struct SubstanceData {
     pub essence_id: EssenceId,
     pub form_id: FormId,
-    pub quantity: Quantity
+    pub quantity: Quantity,
 }
 
 #[derive(Debug)]
 pub enum Substance {
     Free(SubstanceId, SubstanceData),
-    Solution(SubstanceId, SubstanceData, HashMap::<EssenceId, Quantity>)
+    Solution(SubstanceId, SubstanceData, HashMap<EssenceId, Quantity>),
 }
 
 impl Substance {
     pub fn get_form(&self) -> FormId {
         match self {
             Self::Free(_, data) => data.form_id,
-            Self::Solution(_, data, _) => data.form_id
+            Self::Solution(_, data, _) => data.form_id,
         }
     }
 
@@ -47,14 +52,14 @@ impl Substance {
     pub fn get_quantity(&self) -> Quantity {
         match self {
             Self::Free(_, data) => data.quantity,
-            Self::Solution(_, data, _) => data.quantity
+            Self::Solution(_, data, _) => data.quantity,
         }
     }
 
     pub fn get_essence(&self) -> EssenceId {
         match self {
             Self::Free(_, data) => data.essence_id,
-            Self::Solution(_, data, _) => data.essence_id
+            Self::Solution(_, data, _) => data.essence_id,
         }
     }
 
@@ -65,7 +70,7 @@ impl Substance {
     pub fn get_substance(&self) -> SubstanceId {
         match self {
             Self::Free(substance_id, _) => *substance_id,
-            Self::Solution(substance_id, _, _) => *substance_id
+            Self::Solution(substance_id, _, _) => *substance_id,
         }
     }
 }
@@ -84,13 +89,13 @@ pub struct NormalSubstanceBuilder<'a> {
 
 pub struct SolutionSubstanceBuilder<'a> {
     engine: &'a Essentia,
-    
+
     substance_id: Option<SubstanceId>,
     essence_id: Option<EssenceId>,
     form_id: Option<FormId>,
     quantity: Quantity,
 
-    solutes: HashMap<EssenceId, Quantity>
+    solutes: HashMap<EssenceId, Quantity>,
 }
 
 impl Substance {
@@ -103,12 +108,12 @@ impl Substance {
                     remainder_data.quantity -= quantity;
                     return (
                         Substance::Free(id, data),
-                        Some(Substance::Free(id, remainder_data))
+                        Some(Substance::Free(id, remainder_data)),
                     );
                 }
                 return (self, None);
-            },
-            _ => panic!("Can't divide solutions!")
+            }
+            _ => panic!("Can't divide solutions!"),
         }
     }
 }
@@ -119,7 +124,7 @@ impl<'a> SubstanceBuilder<'a> {
     pub fn new(engine: &'a Essentia) -> Self {
         SubstanceBuilder {
             _private_ctor: (),
-            engine
+            engine,
         }
     }
 
@@ -134,7 +139,12 @@ impl<'a> SubstanceBuilder<'a> {
 
 impl<'a> NormalSubstanceBuilder<'a> {
     fn new(engine: &'a Essentia) -> Self {
-        NormalSubstanceBuilder { engine, essence_id: None, form_id: None, quantity: Quantity::default() }
+        NormalSubstanceBuilder {
+            engine,
+            essence_id: None,
+            form_id: None,
+            quantity: Quantity::default(),
+        }
     }
 
     pub fn with_form(mut self, form_id: FormId) -> Self {
@@ -171,8 +181,8 @@ impl<'a> NormalSubstanceBuilder<'a> {
             SubstanceData {
                 essence_id: self.essence_id.unwrap(),
                 form_id: self.form_id.unwrap(),
-                quantity: self.quantity
-            }
+                quantity: self.quantity,
+            },
         )
     }
 }
@@ -198,28 +208,27 @@ impl<'a> SolutionSubstanceBuilder<'a> {
                 panic!("This essence doesn't support being solvent in this form!")
             }
         }
-        
 
         Substance::Solution(
-            self.substance_id.unwrap_or(SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst).into()),
+            self.substance_id
+                .unwrap_or(SUBSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst).into()),
             SubstanceData {
                 essence_id: self.essence_id.unwrap(),
                 form_id: self.form_id.unwrap(),
-                quantity: self.quantity
+                quantity: self.quantity,
             },
-            self.solutes
+            self.solutes,
         )
-
     }
 
     fn new(engine: &'a Essentia) -> Self {
-        SolutionSubstanceBuilder { 
+        SolutionSubstanceBuilder {
             engine,
             substance_id: None,
             essence_id: None,
             form_id: None,
             quantity: Quantity::default(),
-            solutes: HashMap::new()
+            solutes: HashMap::new(),
         }
     }
 
@@ -231,7 +240,7 @@ impl<'a> SolutionSubstanceBuilder<'a> {
                 self.form_id = Some(base.form_id);
                 self.quantity = base.quantity;
                 self.solutes = HashMap::new();
-            },
+            }
             Substance::Solution(substance_id, base, existing_solutes) => {
                 self.substance_id = Some(substance_id);
                 self.essence_id = Some(base.essence_id);
@@ -266,7 +275,7 @@ impl<'a> SolutionSubstanceBuilder<'a> {
                 .and_modify(|qty| *qty += quantity)
                 .or_insert(quantity);
         }
-        
+
         self
     }
 }

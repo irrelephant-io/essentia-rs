@@ -9,14 +9,14 @@ use super::Essentia;
 
 pub struct ReactionContext<'a> {
     pub engine: &'a Essentia,
-    pub pending_products: Vec<Product>
+    pub pending_products: Vec<Product>,
 }
 
 impl<'a> ReactionContext<'a> {
     pub fn new(engine: &'a Essentia) -> Self {
         Self {
             engine,
-            pending_products: vec![]
+            pending_products: vec![],
         }
     }
 
@@ -25,9 +25,15 @@ impl<'a> ReactionContext<'a> {
         let mut substance_products = HashMap::<(EssenceId, FormId), Product>::new();
         let mut dissolution_products = HashMap::<(EssenceId, FormId, SubstanceId), Product>::new();
 
-        for product in self.pending_products.into_iter().chain(products.into_iter()) {
+        for product in self
+            .pending_products
+            .into_iter()
+            .chain(products.into_iter())
+        {
             match product {
-                Product::Thermal(_) => { thermal_product = thermal_product + product; },
+                Product::Thermal(_) => {
+                    thermal_product = thermal_product + product;
+                }
                 Product::Produce(essence_id, form_id, _) => {
                     substance_products
                         .entry((essence_id, form_id))
@@ -36,7 +42,7 @@ impl<'a> ReactionContext<'a> {
                             *e = result;
                         })
                         .or_insert(product);
-                },
+                }
                 Product::Consume(essence_id, form_id, _) => {
                     substance_products
                         .entry((essence_id, form_id))
@@ -45,7 +51,7 @@ impl<'a> ReactionContext<'a> {
                             *e = result;
                         })
                         .or_insert(product);
-                },
+                }
                 Product::Dissolve(essence_id, form_id, substance_id, _) => {
                     dissolution_products
                         .entry((essence_id, form_id, substance_id))
@@ -54,7 +60,7 @@ impl<'a> ReactionContext<'a> {
                             *e = result;
                         })
                         .or_insert(product);
-                },
+                }
                 Product::Precipitate(essence_id, form_id, substance_id, _) => {
                     dissolution_products
                         .entry((essence_id, form_id, substance_id))
@@ -63,21 +69,19 @@ impl<'a> ReactionContext<'a> {
                             *e = result;
                         })
                         .or_insert(product);
-                },
+                }
             }
         }
 
         let mut products_vec = substance_products
             .into_values()
             .chain(dissolution_products.into_values())
-            .filter(|p| {
-                match p {
-                    Product::Consume(_, _, qty) => qty.mmol != 0,
-                    Product::Produce(_, _, qty) => qty.mmol != 0,
-                    Product::Dissolve(_, _, _, qty) => qty.mmol != 0,
-                    Product::Precipitate(_, _, _, qty) => qty.mmol != 0,
-                    _ => true
-                }
+            .filter(|p| match p {
+                Product::Consume(_, _, qty) => qty.mmol != 0,
+                Product::Produce(_, _, qty) => qty.mmol != 0,
+                Product::Dissolve(_, _, _, qty) => qty.mmol != 0,
+                Product::Precipitate(_, _, _, qty) => qty.mmol != 0,
+                _ => true,
             })
             .collect::<Vec<_>>();
 
@@ -86,18 +90,22 @@ impl<'a> ReactionContext<'a> {
                 products_vec.push(thermal_product);
             }
         }
-        
+
         ReactionContext {
             engine: self.engine,
-            pending_products: products_vec
+            pending_products: products_vec,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{engine::EssentiaBuilder, physics::{Power, Quantity}, reaction::Product};
     use super::ReactionContext;
+    use crate::{
+        engine::EssentiaBuilder,
+        physics::{Power, Quantity},
+        reaction::Product,
+    };
 
     #[test]
     pub fn test_applying_empty() {
@@ -116,7 +124,7 @@ mod tests {
 
         let next_context = context.apply(vec![
             Product::Thermal(Power::from(10)),
-            Product::Thermal(Power::from(20))
+            Product::Thermal(Power::from(20)),
         ]);
 
         let thermal = next_context.pending_products.last().unwrap();
@@ -130,7 +138,7 @@ mod tests {
 
         let next_context = context.apply(vec![
             Product::Thermal(Power::from(10)),
-            Product::Thermal(Power::from(-10))
+            Product::Thermal(Power::from(-10)),
         ]);
 
         assert_eq!(next_context.pending_products.len(), 0);
@@ -158,18 +166,17 @@ mod tests {
             Product::Produce(0.into(), 0.into(), Quantity::from(5)),
             Product::Produce(0.into(), 0.into(), Quantity::from(5)),
             Product::Consume(0.into(), 0.into(), Quantity::from(2)),
-            Product::Produce(0.into(), 1.into(), Quantity::from(5))
+            Product::Produce(0.into(), 1.into(), Quantity::from(5)),
         ]);
 
         let expected = vec![
             Product::Produce(0.into(), 0.into(), Quantity::from(8)),
-            Product::Produce(0.into(), 1.into(), Quantity::from(5))
+            Product::Produce(0.into(), 1.into(), Quantity::from(5)),
         ];
 
-        assert!(
-            next_context.pending_products
-                .iter()
-                .all(|item| expected.contains(item))
-        );
+        assert!(next_context
+            .pending_products
+            .iter()
+            .all(|item| expected.contains(item)));
     }
 }

@@ -1,8 +1,8 @@
-use data::reactions::{PyroflaxHeat, CryodustChill};
+use data::reactions::{CryodustChill, PyroflaxHeat};
 
-use essentia_rs::SubstanceBuilder;
 use essentia_rs::engine::{Essentia, EssentiaBuilder};
 use essentia_rs::physics::{Power, Quantity, Rate, TimeSpan};
+use essentia_rs::SubstanceBuilder;
 
 use crate::data::essence::Essences;
 use crate::data::form::Forms;
@@ -12,7 +12,7 @@ pub mod data;
 fn setup() -> Essentia {
     // Create engine without built-in reactions
     let mut builder = EssentiaBuilder::new();
-    
+
     builder = data::essence::create_essences()
         .into_iter()
         .fold(builder, |it, e| it.register_essence(e));
@@ -23,7 +23,10 @@ fn setup() -> Essentia {
 
     builder
         .register_reaction(Box::new(PyroflaxHeat::from(1)))
-        .register_reaction(Box::new(CryodustChill::new(Power::from(1), Rate::from(1000))))
+        .register_reaction(Box::new(CryodustChill::new(
+            Power::from(1),
+            Rate::from(1000),
+        )))
         .build()
 }
 
@@ -34,7 +37,7 @@ fn add_pyroflux(engine: &mut Essentia) {
             .with_essence(Essences::Pyroflux.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::default())
-            .build()
+            .build(),
     );
 }
 
@@ -45,7 +48,7 @@ fn add_cryodust(engine: &mut Essentia) {
             .with_essence(Essences::Cryodust.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::from(10_000))
-            .build()
+            .build(),
     );
 }
 
@@ -56,7 +59,7 @@ fn add_inertia(engine: &mut Essentia) {
             .with_essence(Essences::Inertia.into())
             .with_form(Forms::Gas.into())
             .with_quantity(Quantity::default())
-            .build()
+            .build(),
     );
 }
 
@@ -67,14 +70,14 @@ fn add_heatstone(engine: &mut Essentia) {
             .with_essence(Essences::Heatstone.into())
             .with_form(Forms::Salt.into())
             .with_quantity(Quantity::from(10_000))
-            .build()
+            .build(),
     );
 }
 
 #[test]
 fn simulate_empty_should_pass_time() {
     let mut engine = setup();
-    
+
     let prev_time = engine.environment.time;
     engine.simulate(TimeSpan::from(10));
 
@@ -116,10 +119,11 @@ fn exotherm_heats_up_less_in_presense_of_larger_heat_cap() {
 
     println!(
         "just_pyro (T): {:?}, pyro_with_heatstone (T): {:?}",
-        just_pyro_engine.environment.temperature,
-        pyro_heatstone_engine.environment.temperature
+        just_pyro_engine.environment.temperature, pyro_heatstone_engine.environment.temperature
     );
-    assert!(just_pyro_engine.environment.temperature > pyro_heatstone_engine.environment.temperature)
+    assert!(
+        just_pyro_engine.environment.temperature > pyro_heatstone_engine.environment.temperature
+    )
 }
 
 #[test]
@@ -136,10 +140,12 @@ fn inertia_doesnt_do_anything() {
 
     println!(
         "just_pyro: {:?}, pyro_with_inertia:{:?}",
-        just_pyro_engine.environment,
-        pyro_inertia_engine.environment
+        just_pyro_engine.environment, pyro_inertia_engine.environment
     );
-    assert_eq!(just_pyro_engine.environment.temperature, pyro_inertia_engine.environment.temperature);
+    assert_eq!(
+        just_pyro_engine.environment.temperature,
+        pyro_inertia_engine.environment.temperature
+    );
 }
 
 fn get_quantity_of(engine: &Essentia, essence: Essences) -> Quantity {
@@ -163,7 +169,7 @@ fn cryo_is_consumed_over_time() {
     let temp_sample_pre = engine.environment.temperature;
     let cryo_pre = get_quantity_of(&engine, Essences::Cryodust);
     println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_pre, cryo_pre);
-    engine.simulate(TimeSpan::from(10)); 
+    engine.simulate(TimeSpan::from(10));
     let cryo_1 = get_quantity_of(&engine, Essences::Cryodust);
     let temp_sample_1 = engine.environment.temperature;
     println!("pre_temp: {:?}, pre_qty: {:?}", temp_sample_1, cryo_1);

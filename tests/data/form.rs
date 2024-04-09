@@ -5,7 +5,7 @@ pub enum Forms {
     Crystalline = 1,
     Liquid = 2,
     Salt = 3,
-    Gas = 4
+    Gas = 4,
 }
 
 impl Into<FormId> for Forms {
@@ -19,6 +19,6 @@ pub fn create_forms() -> Vec<Form> {
         Form::new_with_id(Forms::Crystalline.into(), "Crystalline"),
         Form::new_with_id(Forms::Liquid.into(), "Liquid"),
         Form::new_with_id(Forms::Salt.into(), "Salt"),
-        Form::new_with_id(Forms::Gas.into(), "Gas")
+        Form::new_with_id(Forms::Gas.into(), "Gas"),
     ])
 }

@@ -1,31 +1,31 @@
-use crate::physics::{Quantity, Solubility};
-use crate::reaction::{Reaction, Product};
 use crate::engine::ReactionContext;
+use crate::physics::{Quantity, Solubility};
+use crate::reaction::{Product, Reaction};
 use crate::Substance;
 
 pub struct Precipitation {
-    pub optimal_precipitation_speed_percent: u32
+    pub optimal_precipitation_speed_percent: u32,
 }
 
 impl Default for Precipitation {
     fn default() -> Self {
-        Self { optimal_precipitation_speed_percent: 10 }
+        Self {
+            optimal_precipitation_speed_percent: 10,
+        }
     }
 }
 
 impl Reaction for Precipitation {
-    fn react(
-        &self,
-        context: &ReactionContext
-    ) -> Vec::<Product> {
-        context.engine
+    fn react(&self, context: &ReactionContext) -> Vec<Product> {
+        context
+            .engine
             .iter_solvents()
             .filter_map(|(solvent, solubility)| {
                 let precipitation_efficiency = self.get_precipitation_efficiency(
-                    solubility.get_saturation_percent(context.engine, solvent)
+                    solubility.get_saturation_percent(context.engine, solvent),
                 );
                 if precipitation_efficiency > 0.0 {
-                    let absolute_to_precipitate = precipitation_efficiency 
+                    let absolute_to_precipitate = precipitation_efficiency
                         * solubility.get_saturation_limit(solvent)
                         * self.optimal_precipitation_speed_percent
                         / 100;
@@ -42,7 +42,9 @@ impl Reaction for Precipitation {
     }
 
     // Solubility is applied before the form transitions
-    fn get_priority(&self) -> u8 { u8::MAX - 1 }
+    fn get_priority(&self) -> u8 {
+        u8::MAX - 1
+    }
 }
 
 impl Precipitation {
@@ -57,16 +59,24 @@ impl Precipitation {
         }
     }
 
-    fn precipitate(&self, context: &ReactionContext, solvent: &Substance, to_precipitate: Quantity) -> Option<Vec<Product>> {
+    fn precipitate(
+        &self,
+        context: &ReactionContext,
+        solvent: &Substance,
+        to_precipitate: Quantity,
+    ) -> Option<Vec<Product>> {
         if let Substance::Solution(_, _, solutes) = solvent {
             let total_weight = solutes
                 .iter()
                 .filter_map(|(&essence_id, &solute_quantity)| {
-                    let essence = context.engine
+                    let essence = context
+                        .engine
                         .get_essence(essence_id)
                         .expect("Essence not found");
 
-                    if let Solubility::Solute(_, weight) = essence.solubility.expect("Essence is insoluble") {
+                    if let Solubility::Solute(_, weight) =
+                        essence.solubility.expect("Essence is insoluble")
+                    {
                         Some(weight * solute_quantity)
                     } else {
                         None
@@ -76,21 +86,25 @@ impl Precipitation {
 
             let mut products = vec![];
             for (&essence_id, &solute_quantity) in solutes {
-                let essence = context.engine
+                let essence = context
+                    .engine
                     .get_essence(essence_id)
                     .expect("Essence not found");
 
-                if let Solubility::Solute(precipitate_form, weight) = essence.solubility.expect("Essence is insoluble") {
-                    let precipitation_ratio = (weight * solute_quantity).mmol as f32 / total_weight.mmol as f32;
+                if let Solubility::Solute(precipitate_form, weight) =
+                    essence.solubility.expect("Essence is insoluble")
+                {
+                    let precipitation_ratio =
+                        (weight * solute_quantity).mmol as f32 / total_weight.mmol as f32;
                     products.push(Product::Precipitate(
                         essence_id,
                         precipitate_form,
                         solvent.get_substance(),
-                        to_precipitate * precipitation_ratio
+                        to_precipitate * precipitation_ratio,
                     ))
                 }
             }
-            
+
             Some(products)
         } else {
             None
@@ -100,13 +114,18 @@ impl Precipitation {
 
 #[cfg(test)]
 mod test {
-    use crate::{engine::{Essentia, EssentiaBuilder, ReactionContext}, physics::{PerMol, Quantity}, reaction::{Product, Reaction}, Builder, EssenceBuilder, EssenceId, Form, FormId, SubstanceBuilder};
+    use crate::{
+        engine::{Essentia, EssentiaBuilder, ReactionContext},
+        physics::{PerMol, Quantity},
+        reaction::{Product, Reaction},
+        Builder, EssenceBuilder, EssenceId, Form, FormId, SubstanceBuilder,
+    };
 
     use super::Precipitation;
 
     enum Forms {
         Liquid = 1,
-        Solid = 2
+        Solid = 2,
     }
 
     impl Into<FormId> for Forms {
@@ -118,7 +137,7 @@ mod test {
     enum Essences {
         Water = 1,
         Salt = 2,
-        Sugar = 3
+        Sugar = 3,
     }
 
     impl Into<EssenceId> for Essences {
@@ -127,10 +146,10 @@ mod test {
         }
     }
 
-    fn build_ctx(engine: & Essentia) -> ReactionContext {
+    fn build_ctx(engine: &Essentia) -> ReactionContext {
         ReactionContext {
             engine: &engine,
-            pending_products: vec![]
+            pending_products: vec![],
         }
     }
 
@@ -141,36 +160,36 @@ mod test {
             .register_essence(
                 EssenceBuilder::default()
                     .with_custom_id(Essences::Salt.into())
-                    .with_solubility(|builder|
+                    .with_solubility(|builder| {
                         builder
                             .is_soluble()
                             .when_in_form(Forms::Solid.into())
                             .build()
-                    )
-                    .build()
+                    })
+                    .build(),
             )
             .register_essence(
                 EssenceBuilder::default()
                     .with_custom_id(Essences::Sugar.into())
-                    .with_solubility(|builder|
+                    .with_solubility(|builder| {
                         builder
                             .is_soluble()
                             .when_in_form(Forms::Solid.into())
                             .with_weight(PerMol::from(2))
                             .build()
-                    )
-                    .build()
+                    })
+                    .build(),
             )
             .register_essence(
                 EssenceBuilder::default()
                     .with_custom_id(Essences::Water.into())
-                    .with_solubility(|builder| 
+                    .with_solubility(|builder| {
                         builder
                             .is_solvent()
                             .when_in_form(Forms::Liquid.into())
                             .build()
-                    )
-                    .build()
+                    })
+                    .build(),
             )
             .build()
     }
@@ -200,7 +219,10 @@ mod test {
         if let &Product::Precipitate(_, _, _, qty) = product {
             // In this stage, we expect minimal possible precipitation of 10%
             // since solution is less than 80% saturated
-            assert_eq!(qty, Quantity::default() * 0.1 * precipitation.optimal_precipitation_speed_percent / 100);
+            assert_eq!(
+                qty,
+                Quantity::default() * 0.1 * precipitation.optimal_precipitation_speed_percent / 100
+            );
         } else {
             panic!("Didn't precipitate when expected!");
         }
@@ -237,7 +259,10 @@ mod test {
             assert_eq!(sid, solvent_id);
             // Since we are over 20% supersaturated, precipitation happens at
             // maximum possible rate.
-            assert_eq!(qty, Quantity::default() * precipitation.optimal_precipitation_speed_percent / 100);
+            assert_eq!(
+                qty,
+                Quantity::default() * precipitation.optimal_precipitation_speed_percent / 100
+            );
         } else {
             panic!("Weird product detected in precipitation reaction!");
         }
@@ -273,22 +298,33 @@ mod test {
         let products = precipitation.react(context);
 
         assert_eq!(products.len(), 2);
-        let sugar_precipitation_qty = products.iter().find_map(|p| {
-            match p {
-                &Product::Precipitate(essence_id, _, _,qty) if essence_id == Essences::Sugar.into() =>Some(qty),
-                _ => None
-            }
-        }).expect("Expected sugar to start precipitating!");
+        let sugar_precipitation_qty = products
+            .iter()
+            .find_map(|p| match p {
+                &Product::Precipitate(essence_id, _, _, qty)
+                    if essence_id == Essences::Sugar.into() =>
+                {
+                    Some(qty)
+                }
+                _ => None,
+            })
+            .expect("Expected sugar to start precipitating!");
 
-        let salt_precipitation_qty  = products.iter().find_map(|p| {
-            match p {
-                &Product::Precipitate(essence_id, _, _, qty) if essence_id == Essences::Salt.into() =>Some(qty),
-                _ => None
-            }
-        }).expect("Expected salt to start precipitating!");
+        let salt_precipitation_qty = products
+            .iter()
+            .find_map(|p| match p {
+                &Product::Precipitate(essence_id, _, _, qty)
+                    if essence_id == Essences::Salt.into() =>
+                {
+                    Some(qty)
+                }
+                _ => None,
+            })
+            .expect("Expected salt to start precipitating!");
 
         assert!(
-            (sugar_precipitation_qty.mmol as f32 / salt_precipitation_qty.mmol as f32) - 2.0 < f32::EPSILON
+            (sugar_precipitation_qty.mmol as f32 / salt_precipitation_qty.mmol as f32) - 2.0
+                < f32::EPSILON
         )
     }
 }

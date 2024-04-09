@@ -1,28 +1,19 @@
 use std::collections::HashMap;
 
 use crate::{
-    abstractions::{
-        reaction::Reaction,
-        Essence,
-        Form
-    },
-    engine::builtin_reactions::{
-        FormTransition,
-        Precipitation,
-        Dissolution
-    },
+    abstractions::{reaction::Reaction, Essence, Form},
+    engine::builtin_reactions::{Dissolution, FormTransition, Precipitation},
     physics::{HeatCapacity, TimeSpan},
-    Environment,
-    EssenceId, FormId
+    Environment, EssenceId, FormId,
 };
 
 use super::{reactions::ReactionLookup, Essentia};
 
 pub struct EssentiaBuilder {
-    essence_lookup: HashMap::<EssenceId, Essence>,
-    form_lookup: HashMap::<FormId, Form>,
+    essence_lookup: HashMap<EssenceId, Essence>,
+    form_lookup: HashMap<FormId, Form>,
     reactions: ReactionLookup,
-    starting_environment: Option<Environment>
+    starting_environment: Option<Environment>,
 }
 
 impl EssentiaBuilder {
@@ -31,7 +22,7 @@ impl EssentiaBuilder {
             starting_environment: Option::default(),
             essence_lookup: HashMap::new(),
             form_lookup: HashMap::new(),
-            reactions: ReactionLookup::new()
+            reactions: ReactionLookup::new(),
         }
     }
 
@@ -45,7 +36,7 @@ impl EssentiaBuilder {
             substances: HashMap::new(),
             essence_lookup: self.essence_lookup,
             form_lookup: self.form_lookup,
-            reactions: self.reactions
+            reactions: self.reactions,
         }
     }
 

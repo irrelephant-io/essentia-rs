@@ -5,11 +5,10 @@ use super::{quantity::PerMol, Quantity};
 #[derive(Clone, Copy)]
 pub enum Solubility {
     Solvent(FormId, PerMol),
-    Solute(FormId, PerMol)
+    Solute(FormId, PerMol),
 }
 
 impl Solubility {
-
     pub fn get_saturation_limit(&self, substance: &Substance) -> Quantity {
         if let Solubility::Solvent(_, limit_per_unit) = *self {
             limit_per_unit * substance.get_quantity()
@@ -35,8 +34,9 @@ impl Solubility {
                             panic!("Non-solute found in solution!")
                         }
                     })
-                    .sum::<Quantity>().mmol as f32
-                / data.quantity.mmol as f32
+                    .sum::<Quantity>()
+                    .mmol as f32
+                    / data.quantity.mmol as f32
             }
         }
     }
@@ -58,14 +58,14 @@ impl SolubilityBuilder {
 #[derive(Default)]
 pub struct SolventBuilder {
     saturation_limit: Option<PerMol>,
-    form_id: Option<FormId>
+    form_id: Option<FormId>,
 }
 
 impl Builder<Solubility> for SolventBuilder {
     fn build(&self) -> Solubility {
         Solubility::Solvent(
             self.form_id.expect("Form id is required!"),
-            self.saturation_limit.unwrap_or_default()
+            self.saturation_limit.unwrap_or_default(),
         )
     }
 }
@@ -85,14 +85,14 @@ impl SolventBuilder {
 #[derive(Default)]
 pub struct SoluteBuilder {
     weight: Option<PerMol>,
-    form_id: Option<FormId>
+    form_id: Option<FormId>,
 }
 
 impl Builder<Solubility> for SoluteBuilder {
     fn build(&self) -> Solubility {
         Solubility::Solute(
             self.form_id.expect("Form id is required!"),
-            self.weight.unwrap_or_default()
+            self.weight.unwrap_or_default(),
         )
     }
 }

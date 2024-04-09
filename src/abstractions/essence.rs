@@ -1,11 +1,11 @@
 use std::sync::atomic::{AtomicU16, Ordering};
 
-use crate::physics::{PhaseGraph, PhaseGraphBuilder, Solubility, SolubilityBuilder};
 use super::physics::SpecificHeatCapacity;
+use crate::physics::{PhaseGraph, PhaseGraphBuilder, Solubility, SolubilityBuilder};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct EssenceId {
-    id: u16
+    id: u16,
 }
 
 impl From<u16> for EssenceId {
@@ -26,15 +26,15 @@ pub struct Essence {
     pub heat_capacity: SpecificHeatCapacity,
     pub phase_graph: Option<PhaseGraph>,
     pub solubility: Option<Solubility>,
-    
-    _private_ctor: ()
+
+    _private_ctor: (),
 }
 
 #[derive(Default)]
 enum IdGenerationStrategy {
     #[default]
     Auto,
-    Specific(EssenceId)
+    Specific(EssenceId),
 }
 
 static ESSENCE_COUNTER: AtomicU16 = AtomicU16::new(0);
@@ -45,7 +45,7 @@ pub struct EssenceBuilder {
     heat_capacity: SpecificHeatCapacity,
     id_generation: IdGenerationStrategy,
     phase_graph: Option<PhaseGraph>,
-    solubility: Option<Solubility>
+    solubility: Option<Solubility>,
 }
 
 impl EssenceBuilder {
@@ -56,18 +56,18 @@ impl EssenceBuilder {
             id: match self.id_generation {
                 IdGenerationStrategy::Auto => ESSENCE_COUNTER.fetch_add(1, Ordering::SeqCst).into(),
                 IdGenerationStrategy::Specific(id) => {
-                    ESSENCE_COUNTER.fetch_update(
-                        Ordering::SeqCst,
-                        Ordering::SeqCst,
-                        |current| { Some(u16::max(current, id.into())) }
-                    ).unwrap();
+                    ESSENCE_COUNTER
+                        .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |current| {
+                            Some(u16::max(current, id.into()))
+                        })
+                        .unwrap();
 
                     id
                 }
             },
             phase_graph: self.phase_graph,
             heat_capacity: self.heat_capacity,
-            solubility: self.solubility
+            solubility: self.solubility,
         }
     }
 
@@ -85,15 +85,21 @@ impl EssenceBuilder {
         self.heat_capacity = capacity;
         self
     }
-    
-    pub fn with_phase_transitions(mut self, builder_fn: impl Fn(&mut PhaseGraphBuilder) -> ()) -> Self {
+
+    pub fn with_phase_transitions(
+        mut self,
+        builder_fn: impl Fn(&mut PhaseGraphBuilder) -> (),
+    ) -> Self {
         let mut builder = PhaseGraphBuilder::default();
         builder_fn(&mut builder);
         self.phase_graph = Some(builder.build());
         self
     }
 
-    pub fn with_solubility(mut self, builder_fn: impl FnOnce(SolubilityBuilder) -> Solubility) -> Self {
+    pub fn with_solubility(
+        mut self,
+        builder_fn: impl FnOnce(SolubilityBuilder) -> Solubility,
+    ) -> Self {
         let builder = SolubilityBuilder::default();
         self.solubility = Some(builder_fn(builder));
         self

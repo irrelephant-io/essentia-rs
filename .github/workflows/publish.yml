@@ -26,17 +26,26 @@ jobs:
           CURRENT_VER=$(cat Cargo.toml                                    \
             | grep 'version'                                              \
             | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
+          echo "Detected current package version of $CURRENT_VERSION"
 
           PUBLISHED_VER=$(cargo search essentia-rs --color=never          \
             | grep --only-matching '[[:digit:]].[[:digit:]].[[:digit:]]')
+          echo "Detected current published version of $CURRENT_VERSION"
+
+          if [ $CURRENT_VER = $PUBLISHED_VER ]; then
+            echo "Current version is equal to published: should_publish=false"
+            exit 0
+          fi
 
           SMALLER_VER=$(echo "$PUBLISHED_VER\n$EXISTING_VER"              \
             | sort -V                                                     \
             | head -1)
 
           if [ $SMALLER_VER = $PUBLISHED_VER ]; then
+            echo "Published version is older: should_publish=true"
             echo "should_publish=true" >> $GITHUB_ENV
           else
+            echo "Published version is older: should_publish=false"
             echo "should_publish=false" >> $GITHUB_ENV
           fi
 

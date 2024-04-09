@@ -1,15 +1,15 @@
 use std::ops::{Add, Mul, Neg, Sub};
 
-use super::{Energy, Quantity, TimeSpan};
+use super::{energy::Energy, Quantity, TimeSpan};
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
 pub struct Power {
-    pub watts: i16
+    pub mwatts: i32,
 }
 
-impl From<i16> for Power {
-    fn from(value: i16) -> Self {
-        Power { watts: value }
+impl From<i32> for Power {
+    fn from(value: i32) -> Self {
+        Power { mwatts: value }
     }
 }
 
@@ -17,7 +17,9 @@ impl Mul<Quantity> for Power {
     type Output = Power;
 
     fn mul(self, rhs: Quantity) -> Self::Output {
-        Self::Output { watts: self.watts * rhs.mol as i16 }
+        Self::Output {
+            mwatts: self.mwatts * rhs.mmol as i32,
+        }
     }
 }
 
@@ -26,7 +28,7 @@ impl Add for Power {
 
     fn add(self, rhs: Self) -> Self::Output {
         Self {
-            watts: self.watts + rhs.watts
+            mwatts: self.mwatts + rhs.mwatts,
         }
     }
 }
@@ -36,7 +38,7 @@ impl Sub for Power {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
-            watts: self.watts - rhs.watts
+            mwatts: self.mwatts - rhs.mwatts,
         }
     }
 }
@@ -45,7 +47,9 @@ impl Neg for Power {
     type Output = Power;
 
     fn neg(self) -> Self::Output {
-        Power { watts: -self.watts }
+        Power {
+            mwatts: -self.mwatts,
+        }
     }
 }
 
@@ -53,6 +57,8 @@ impl Mul<TimeSpan> for Power {
     type Output = Energy;
 
     fn mul(self, rhs: TimeSpan) -> Self::Output {
-        Energy { joules: self.watts * rhs.ticks as i16 }
+        Energy {
+            joules: self.mwatts * rhs.ticks as i32,
+        }
     }
 }

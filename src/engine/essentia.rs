@@ -1,37 +1,53 @@
 use std::collections::HashMap;
 
-use crate::{abstractions::{reaction::Reaction, Environment, Essence, Form, Substance}, physics::TimeSpan};
+use crate::{
+    abstractions::{Environment, Essence, Form, Substance, SubstanceId},
+    physics::{HeatCapacity, TimeSpan},
+    EssenceId, FormId,
+};
 
 pub struct Essentia {
-    pub environment: Environment,
-    pub delta_time: TimeSpan,
+    _private_ctor: (),
 
-    substances: Vec::<Substance>,
-    essence_lookup: HashMap::<u16, Essence>,
-    form_lookup: HashMap::<u16, Form>,
-    reactions: Vec<Box<dyn Reaction>>
+    pub environment: Environment,
+    pub heat_capacity: HeatCapacity,
+    pub delta_time: TimeSpan,
+    pub is_in_equilibrium: bool,
+
+    substances: HashMap<SubstanceId, Substance>,
+    essence_lookup: HashMap<EssenceId, Essence>,
+    form_lookup: HashMap<FormId, Form>,
+    reactions: ReactionLookup,
 }
 
 impl Essentia {
-    pub fn new(environment: Environment) -> Self {
-        Essentia {
-            environment,
-            delta_time: TimeSpan::from(0),
-            substances: Vec::<Substance>::new(),
+    pub fn get_essence(&self, id: EssenceId) -> Option<&Essence> {
+        self.essence_lookup.get(&id)
+    }
 
-            essence_lookup: HashMap::new(),
-            form_lookup: HashMap::new(),
-            reactions: vec![]
-        }
+    pub fn get_form(&self, id: FormId) -> Option<&Form> {
+        self.form_lookup.get(&id)
+    }
+
+    pub fn add_substance(&mut self, substance: Substance) {
+        let id = match substance {
+            Substance::Free(id, _) => id,
+            Substance::Solution(id, _, _) => id,
+        };
+        self.substances.insert(id, substance);
     }
 }
 
-// Contains methods related to manipulating registrations
-// such as forms, essences and reactions.
-mod registrations;
+mod reactions;
 
 // Contains engine simulation methods.
 mod simulation;
 
 // Contains code for querying system's contents
 mod querying;
+
+// Contains code to construct an instance of an engine
+mod builder;
+pub use builder::EssentiaBuilder;
+
+use self::reactions::ReactionLookup;

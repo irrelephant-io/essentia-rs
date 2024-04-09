@@ -1,6 +1,14 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "essentia-rs"
+description = "Alchemical Simulation Engine loosely inspired by the real world."
+homepage = "https://essentia.irrelephant.io"
+repository = "https://github.com/irrelephant-io/essentia-rs"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+license = "GPL-3.0-or-later"
+keywords = [ "gamedev", "engine" ]
+exclude = [ ".github/", ".vscode/" ]
 
 [dependencies]

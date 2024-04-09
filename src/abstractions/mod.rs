@@ -2,13 +2,13 @@ pub mod physics;
 pub mod reaction;
 
 mod substance;
-pub use substance::{Substance, SubstanceBuilder, SubstanceData};
+pub use substance::{Substance, SubstanceBuilder, SubstanceId};
 
 mod essence;
-pub use essence::{Essence, EssenceBuilder};
+pub use essence::{Essence, EssenceBuilder, EssenceId};
 
 mod form;
-pub use form::Form;
+pub use form::{Form, FormId};
 
 mod environment;
 pub use environment::Environment;

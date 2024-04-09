@@ -22,6 +22,12 @@ impl From<u32> for TimeSpan {
     }
 }
 
+impl Default for Time {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Time {
     pub fn new() -> Self {
         Time { ticks: 0 }
@@ -33,13 +39,13 @@ impl Add<TimeSpan> for Time {
 
     fn add(self, rhs: TimeSpan) -> Self::Output {
         Time {
-            ticks: self.ticks + rhs.ticks as u32,
+            ticks: self.ticks + rhs.ticks,
         }
     }
 }
 
 impl AddAssign<TimeSpan> for Time {
     fn add_assign(&mut self, rhs: TimeSpan) {
-        self.ticks += rhs.ticks as u32;
+        self.ticks += rhs.ticks;
     }
 }

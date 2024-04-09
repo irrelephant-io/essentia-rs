@@ -27,7 +27,7 @@ impl FormTransition {
             }
         }
 
-        if transitions_by_thresold.len() == 0 {
+        if transitions_by_thresold.is_empty() {
             return vec![];
         }
 
@@ -100,7 +100,7 @@ impl FormTransition {
             }
         }
 
-        if transitions_by_thresold.len() == 0 {
+        if transitions_by_thresold.is_empty() {
             return vec![];
         }
 

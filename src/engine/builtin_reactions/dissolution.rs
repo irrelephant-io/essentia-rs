@@ -107,9 +107,9 @@ mod test {
         Solid = 2,
     }
 
-    impl Into<FormId> for Forms {
-        fn into(self) -> FormId {
-            (self as u16).into()
+    impl From<Forms> for FormId {
+        fn from(val: Forms) -> Self {
+            (val as u16).into()
         }
     }
 
@@ -120,15 +120,15 @@ mod test {
         AquaRegia = 4,
     }
 
-    impl Into<EssenceId> for Essences {
-        fn into(self) -> EssenceId {
-            (self as u16).into()
+    impl From<Essences> for EssenceId {
+        fn from(val: Essences) -> Self {
+            (val as u16).into()
         }
     }
 
     fn build_ctx(engine: &Essentia) -> ReactionContext {
         ReactionContext {
-            engine: &engine,
+            engine: engine,
             pending_products: vec![],
         }
     }

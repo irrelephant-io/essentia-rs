@@ -32,7 +32,7 @@ fn setup() -> Essentia {
 
 fn add_pyroflux(engine: &mut Essentia) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Pyroflux.into())
             .with_form(Forms::Salt.into())
@@ -43,7 +43,7 @@ fn add_pyroflux(engine: &mut Essentia) {
 
 fn add_cryodust(engine: &mut Essentia) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Cryodust.into())
             .with_form(Forms::Salt.into())
@@ -54,7 +54,7 @@ fn add_cryodust(engine: &mut Essentia) {
 
 fn add_inertia(engine: &mut Essentia) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Inertia.into())
             .with_form(Forms::Gas.into())
@@ -65,7 +65,7 @@ fn add_inertia(engine: &mut Essentia) {
 
 fn add_heatstone(engine: &mut Essentia) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Heatstone.into())
             .with_form(Forms::Salt.into())

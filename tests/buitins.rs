@@ -31,7 +31,7 @@ fn setup() -> Essentia {
 
 fn add_pyroflux(engine: &mut Essentia) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Pyroflux.into())
             .with_form(Forms::Salt.into())
@@ -42,7 +42,7 @@ fn add_pyroflux(engine: &mut Essentia) {
 
 fn add_cryodust(engine: &mut Essentia) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Cryodust.into())
             .with_form(Forms::Salt.into())
@@ -52,7 +52,7 @@ fn add_cryodust(engine: &mut Essentia) {
 }
 
 fn add_water(engine: &mut Essentia, quantity: Quantity) -> SubstanceId {
-    let substance = SubstanceBuilder::new(&engine)
+    let substance = SubstanceBuilder::new(engine)
         .is_normal()
         .with_essence(Essences::Aqua.into())
         .with_quantity(quantity)
@@ -64,7 +64,7 @@ fn add_water(engine: &mut Essentia, quantity: Quantity) -> SubstanceId {
 }
 
 fn add_saline(engine: &mut Essentia, quantity: Quantity) -> SubstanceId {
-    let substance = SubstanceBuilder::new(&engine)
+    let substance = SubstanceBuilder::new(engine)
         .is_normal()
         .with_essence(Essences::Saline.into())
         .with_quantity(quantity)
@@ -77,7 +77,7 @@ fn add_saline(engine: &mut Essentia, quantity: Quantity) -> SubstanceId {
 
 fn add_vitae(engine: &mut Essentia, quantity: Quantity) {
     engine.add_substance(
-        SubstanceBuilder::new(&engine)
+        SubstanceBuilder::new(engine)
             .is_normal()
             .with_essence(Essences::Vitae.into())
             .with_quantity(quantity)
@@ -124,7 +124,7 @@ fn test_water_evaporation_transitions() {
     while engine.get_form(Forms::Liquid.into()).into_iter().count() == 1 {
         assert_trial_limit(&mut trial);
         engine.simulate(TimeSpan::default());
-        let liquid_count = get_of_form(&engine, Forms::Liquid.into()).count();
+        let liquid_count = get_of_form(&engine, Forms::Liquid).count();
         if liquid_count == 0 {
             // We have succesfully evaporated all of the water. Now there is only steam!
             break;
@@ -155,7 +155,7 @@ fn test_water_crystalization_transitions() {
     while engine.get_form(Forms::Liquid.into()).into_iter().count() == 1 {
         assert_trial_limit(&mut trial);
         engine.simulate(TimeSpan::default());
-        let liquid_count = get_of_form(&engine, Forms::Liquid.into()).count();
+        let liquid_count = get_of_form(&engine, Forms::Liquid).count();
         if liquid_count == 0 {
             // We have succesfully evaporated all of the water. Now there is only steam!
             break;
@@ -213,7 +213,7 @@ fn test_solution_in_water() {
     assert_eq!(total_vitae, starting_vitae);
 
     let mut trial: u32 = 0;
-    while get_of_essense(&engine, Essences::Vitae.into()).count() != 1 {
+    while get_of_essense(&engine, Essences::Vitae).count() != 1 {
         assert_trial_limit(&mut trial);
         engine.simulate(TimeSpan::default());
     }

@@ -8,9 +8,9 @@ pub enum Forms {
     Gas = 4,
 }
 
-impl Into<FormId> for Forms {
-    fn into(self) -> FormId {
-        (self as u16).into()
+impl From<Forms> for FormId {
+    fn from(val: Forms) -> Self {
+        (val as u16).into()
     }
 }
 

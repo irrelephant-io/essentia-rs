@@ -169,7 +169,7 @@ mod tests {
             Product::Produce(0.into(), 1.into(), Quantity::from(5)),
         ]);
 
-        let expected = vec![
+        let expected = [
             Product::Produce(0.into(), 0.into(), Quantity::from(8)),
             Product::Produce(0.into(), 1.into(), Quantity::from(5)),
         ];

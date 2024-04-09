@@ -20,14 +20,13 @@ impl From<EssenceId> for u16 {
     }
 }
 
+#[non_exhaustive]
 pub struct Essence {
     pub id: EssenceId,
     pub name: String,
     pub heat_capacity: SpecificHeatCapacity,
     pub phase_graph: Option<PhaseGraph>,
     pub solubility: Option<Solubility>,
-
-    _private_ctor: (),
 }
 
 #[derive(Default)]
@@ -51,7 +50,6 @@ pub struct EssenceBuilder {
 impl EssenceBuilder {
     pub fn build(self) -> Essence {
         Essence {
-            _private_ctor: (),
             name: self.name,
             id: match self.id_generation {
                 IdGenerationStrategy::Auto => ESSENCE_COUNTER.fetch_add(1, Ordering::SeqCst).into(),
@@ -86,10 +84,7 @@ impl EssenceBuilder {
         self
     }
 
-    pub fn with_phase_transitions(
-        mut self,
-        builder_fn: impl Fn(&mut PhaseGraphBuilder) -> (),
-    ) -> Self {
+    pub fn with_phase_transitions(mut self, builder_fn: impl Fn(&mut PhaseGraphBuilder)) -> Self {
         let mut builder = PhaseGraphBuilder::default();
         builder_fn(&mut builder);
         self.phase_graph = Some(builder.build());
@@ -100,7 +95,7 @@ impl EssenceBuilder {
         mut self,
         builder_fn: impl FnOnce(SolubilityBuilder) -> Solubility,
     ) -> Self {
-        let builder = SolubilityBuilder::default();
+        let builder = SolubilityBuilder;
         self.solubility = Some(builder_fn(builder));
         self
     }

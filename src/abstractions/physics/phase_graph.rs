@@ -62,7 +62,7 @@ impl PhaseGraphBuilder {
             }
         }
 
-        if self.transitions_by_threshold.len() > 0
+        if !self.transitions_by_threshold.is_empty()
             && left_transition.is_none()
             && right_transition.is_none()
         {

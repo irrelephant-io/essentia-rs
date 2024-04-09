@@ -27,11 +27,11 @@ impl super::Essentia {
 
     pub fn simulate(&mut self, delta_time: TimeSpan) {
         self.delta_time = delta_time;
-        self.heat_capacity = get_heat_capacity(&self);
+        self.heat_capacity = get_heat_capacity(self);
 
         let mut products = self.run_reactions().pending_products;
 
-        self.is_in_equilibrium = products.len() == 0;
+        self.is_in_equilibrium = products.is_empty();
 
         products.drain(..).for_each(|p| match p {
             Product::Thermal(power) => {
@@ -69,9 +69,7 @@ impl super::Essentia {
                 .substances
                 .extract_if(|id, _| solute_ids.contains(id))
                 .collect::<Vec<_>>();
-            let mut solution_builder = SubstanceBuilder::new(&self)
-                .is_solution()
-                .with_base(solvent);
+            let mut solution_builder = SubstanceBuilder::new(self).is_solution().with_base(solvent);
 
             let mut remainders = vec![];
             for (_, solute) in solutes {
@@ -116,7 +114,7 @@ impl super::Essentia {
                     }
                 }
 
-                return true;
+                true
             });
 
             if quantity_to_precipitate > Quantity::none() {
@@ -142,7 +140,7 @@ impl super::Essentia {
                     }
                 }
 
-                return None;
+                None
             })
             .copied()
             .collect::<HashSet<_>>()
@@ -195,7 +193,7 @@ impl super::Essentia {
                             return false;
                         }
                     }
-                    return true;
+                    true
                 }
                 Substance::Solution(_, data, solutes) => {
                     if data.essence_id == essence_id && data.form_id == form_id {
@@ -206,12 +204,12 @@ impl super::Essentia {
                         } else {
                             quantity_left -= data.quantity;
                             for solute in solutes.clone() {
-                                solutes_to_fall_out.push(solute.clone());
+                                solutes_to_fall_out.push(solute);
                             }
                             return false;
                         }
                     }
-                    return true;
+                    true
                 }
             }
         });

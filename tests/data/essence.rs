@@ -16,9 +16,9 @@ pub enum Essences {
     Saline = 7,
 }
 
-impl Into<EssenceId> for Essences {
-    fn into(self) -> EssenceId {
-        (self as u16).into()
+impl From<Essences> for EssenceId {
+    fn from(val: Essences) -> Self {
+        (val as u16).into()
     }
 }
 

@@ -75,8 +75,8 @@ impl Substance {
     }
 }
 
+#[non_exhaustive]
 pub struct SubstanceBuilder<'a> {
-    _private_ctor: (),
     engine: &'a Essentia,
 }
 
@@ -103,7 +103,7 @@ impl Substance {
         match self {
             Substance::Free(id, mut data) => {
                 if data.quantity > quantity {
-                    let mut remainder_data = data.clone();
+                    let mut remainder_data = data;
                     data.quantity = quantity;
                     remainder_data.quantity -= quantity;
                     return (
@@ -111,7 +111,7 @@ impl Substance {
                         Some(Substance::Free(id, remainder_data)),
                     );
                 }
-                return (self, None);
+                (self, None)
             }
             _ => panic!("Can't divide solutions!"),
         }
@@ -122,10 +122,7 @@ static SUBSTANCE_COUNTER: AtomicU16 = AtomicU16::new(0);
 
 impl<'a> SubstanceBuilder<'a> {
     pub fn new(engine: &'a Essentia) -> Self {
-        SubstanceBuilder {
-            _private_ctor: (),
-            engine,
-        }
+        SubstanceBuilder { engine }
     }
 
     pub fn is_normal(self) -> NormalSubstanceBuilder<'a> {

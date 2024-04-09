@@ -31,7 +31,7 @@ impl EssentiaBuilder {
             _private_ctor: (),
             is_in_equilibrium: true,
             heat_capacity: HeatCapacity::from(0),
-            environment: self.starting_environment.unwrap_or(Environment::new()),
+            environment: self.starting_environment.unwrap_or_default(),
             delta_time: TimeSpan::from(0),
             substances: HashMap::new(),
             essence_lookup: self.essence_lookup,
@@ -61,7 +61,7 @@ impl Default for EssentiaBuilder {
         let builder = Self::new();
         builder
             .register_reaction(Box::new(FormTransition {}))
-            .register_reaction(Box::new(Dissolution::default()))
-            .register_reaction(Box::new(Precipitation::default()))
+            .register_reaction(Box::<Dissolution>::default())
+            .register_reaction(Box::<Precipitation>::default())
     }
 }

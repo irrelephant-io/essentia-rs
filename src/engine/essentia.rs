@@ -20,6 +20,9 @@ pub struct Essentia {
     reactions: ReactionLookup,
 }
 
+unsafe impl Send for Essentia { }
+unsafe impl Sync for Essentia { }
+
 impl Essentia {
     pub fn get_essence(&self, id: EssenceId) -> Option<&Essence> {
         self.essence_lookup.get(&id)
@@ -51,3 +54,4 @@ mod builder;
 pub use builder::EssentiaBuilder;
 
 use self::reactions::ReactionLookup;
+

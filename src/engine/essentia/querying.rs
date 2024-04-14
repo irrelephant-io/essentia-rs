@@ -1,7 +1,7 @@
 use crate::{
     abstractions::SubstanceId,
     physics::{PhaseGraph, Solubility},
-    EssenceId, Substance,
+    EssenceId, FormId, Substance,
 };
 
 impl super::Essentia {
@@ -71,5 +71,18 @@ impl super::Essentia {
 
     pub fn get_substance(&self, substance_id: SubstanceId) -> Option<&Substance> {
         self.substances.get(&substance_id)
+    }
+
+    pub fn extract_matching(
+        &mut self,
+        essence_id: EssenceId,
+        form_id: FormId,
+    ) -> Option<Substance> {
+        self.substances
+            .extract_if(|_, substance| {
+                substance.get_essence() == essence_id && substance.get_form() == form_id
+            })
+            .next()
+            .map(|opt| opt.1)
     }
 }

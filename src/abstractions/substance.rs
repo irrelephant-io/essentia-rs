@@ -250,6 +250,11 @@ impl<'a> SolutionSubstanceBuilder<'a> {
         self
     }
 
+    pub fn with_id(mut self, substance_id: SubstanceId) -> Self {
+        self.substance_id = Some(substance_id);
+        self
+    }
+
     pub fn with_form(mut self, form_id: FormId) -> Self {
         self.form_id = Some(form_id);
         self
@@ -271,6 +276,14 @@ impl<'a> SolutionSubstanceBuilder<'a> {
                 .entry(solute.essence_id)
                 .and_modify(|qty| *qty += quantity)
                 .or_insert(quantity);
+        }
+
+        self
+    }
+
+    pub fn with_solutes(mut self, solutes: HashMap<EssenceId, Quantity>) -> Self {
+        for kvp in solutes {
+            self.solutes.insert(kvp.0, kvp.1);
         }
 
         self

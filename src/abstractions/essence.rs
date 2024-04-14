@@ -5,7 +5,7 @@ use crate::physics::{PhaseGraph, PhaseGraphBuilder, Solubility, SolubilityBuilde
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct EssenceId {
-    id: u16,
+    pub id: u16,
 }
 
 impl From<u16> for EssenceId {

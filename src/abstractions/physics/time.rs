@@ -5,7 +5,7 @@ pub struct Time {
     pub ticks: u32,
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct TimeSpan {
     pub ticks: u32,
 }
